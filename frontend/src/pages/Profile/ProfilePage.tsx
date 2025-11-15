@@ -32,7 +32,7 @@ const ProfilePage: React.FC = () => {
     }
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -140,14 +140,20 @@ const ProfilePage: React.FC = () => {
                 <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
                   Grade / Year
                 </label>
-                <Input
+                <select
                   id="grade"
                   name="grade"
-                  type="text"
                   value={formData.grade}
                   onChange={handleChange}
-                  placeholder="e.g., Freshman, Sophomore, Junior, Senior"
-                />
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all bg-white text-gray-900"
+                >
+                  <option value="">Select grade...</option>
+                  <option value="Freshman">Freshman</option>
+                  <option value="Sophomore">Sophomore</option>
+                  <option value="Junior">Junior</option>
+                  <option value="Senior">Senior</option>
+                  <option value="Graduate">Graduate</option>
+                </select>
               </div>
 
               <div>
