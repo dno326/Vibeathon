@@ -10,7 +10,8 @@ def create_app():
     CORS(app, 
          origins=Config.CORS_ORIGINS,
          supports_credentials=True,
-         allow_headers=['Content-Type', 'Authorization'])
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
     
     # Register blueprints
     from app.api.auth_routes import auth_bp

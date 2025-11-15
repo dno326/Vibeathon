@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.core.security import require_auth
 from app.services.class_service import ClassService
+from app.utils.errors import ValidationError, NotFoundError, UnauthorizedError
 
 class_bp = Blueprint('classes', __name__)
 class_service = ClassService()
@@ -9,36 +10,78 @@ class_service = ClassService()
 @require_auth
 def create_class():
     """Create a new class."""
-    data = request.get_json()
-    # TODO: Implement class creation
-    return jsonify({'message': 'Create class endpoint'}), 201
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        name = data.get('name', '').strip()
+        if not name:
+            return jsonify({'error': 'Class name is required'}), 400
+        
+        owner_id = request.current_user.id
+        
+        class_data = class_service.create_class(name, owner_id)
+        return jsonify(class_data), 201
+        
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @class_bp.route('/join', methods=['POST'])
 @require_auth
 def join_class():
     """Join an existing class by code."""
-    data = request.get_json()
-    # TODO: Implement join class
-    return jsonify({'message': 'Join class endpoint'}), 200
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        code = data.get('code', '').strip()
+        if not code:
+            return jsonify({'error': 'Class code is required'}), 400
+        
+        user_id = request.current_user.id
+        
+        class_data = class_service.join_class(code, user_id)
+        return jsonify(class_data), 200
+        
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except NotFoundError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @class_bp.route('', methods=['GET'])
 @require_auth
 def list_classes():
     """List classes the user belongs to."""
-    # TODO: Implement list classes
-    return jsonify({'classes': []}), 200
+    try:
+        user_id = request.current_user.id
+        classes = class_service.get_user_classes(user_id)
+        return jsonify({'classes': classes}), 200
+        
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @class_bp.route('/<class_id>', methods=['GET'])
 @require_auth
 def get_class(class_id):
     """Get class details, sessions, and decks summary."""
-    # TODO: Implement get class
-    return jsonify({'message': 'Get class endpoint'}), 200
-
-@class_bp.route('/<class_id>/decks', methods=['GET'])
-@require_auth
-def list_class_decks(class_id):
-    """List decks for a class."""
-    # TODO: Implement list class decks
-    return jsonify({'decks': []}), 200
-
+    try:
+        user_id = request.current_user.id
+        class_data = class_service.get_class(class_id, user_id)
+        return jsonify(class_data), 200
+        
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except NotFoundError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except UnauthorizedError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

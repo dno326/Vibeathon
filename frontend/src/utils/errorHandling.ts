@@ -1,7 +1,7 @@
 export const handleApiError = (error: any): string => {
   // Network error (backend not running or CORS issue)
   if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-    return 'Cannot connect to server. Make sure the backend is running on http://localhost:5000';
+    return 'Cannot connect to server. Make sure the backend is running on http://localhost:5001';
   }
   
   // Backend returned an error response

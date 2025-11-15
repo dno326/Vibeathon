@@ -4,6 +4,7 @@ export interface Class {
   code: string;
   owner_id: string;
   created_at: string;
+  user_role?: 'member' | 'owner' | 'ta';
 }
 
 export interface ClassMember {

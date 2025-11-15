@@ -9,6 +9,8 @@ import SessionPage from '../pages/Session/SessionPage';
 import DeckPage from '../pages/Deck/DeckPage';
 import StudyModePage from '../pages/Study/StudyModePage';
 import ProfilePage from '../pages/Profile/ProfilePage';
+import NotesPage from '../pages/Notes/NotesPage';
+import FlashcardsPage from '../pages/Flashcards/FlashcardsPage';
 
 export const routes = (
   <Routes>
@@ -73,6 +75,22 @@ export const routes = (
       element={
         <ProtectedRoute>
           <ProfilePage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/notes"
+      element={
+        <ProtectedRoute>
+          <NotesPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/flashcards"
+      element={
+        <ProtectedRoute>
+          <FlashcardsPage />
         </ProtectedRoute>
       }
     />

@@ -1,14 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import apiClient from '../lib/apiClient';
 import { handleApiError } from '../utils/errorHandling';
-
-interface User {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  created_at?: string;
-}
+import { User } from '../types/user';
 
 interface AuthContextType {
   user: User | null;
@@ -16,6 +9,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, first_name: string, last_name: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('access_token');
       if (token) {
         try {
-          const response = await apiClient.get('/auth/me');
+          const response = await apiClient.get('/api/auth/me');
           setUser(response.data);
         } catch (error) {
           // Token invalid, clear it
@@ -50,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/api/auth/login', { email, password });
       const { user: userData, access_token } = response.data;
       
       localStorage.setItem('access_token', access_token);
@@ -64,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signup = async (email: string, password: string, first_name: string, last_name: string) => {
     try {
       console.log('Signup request:', { email, first_name, last_name });
-      const response = await apiClient.post('/auth/signup', { email, password, first_name, last_name });
+      const response = await apiClient.post('/api/auth/signup', { email, password, first_name, last_name });
       console.log('Signup response:', response.data);
       const { user: userData, access_token } = response.data;
       
@@ -88,8 +83,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData: User) => {
+    setUser(userData);
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await apiClient.get('/api/auth/me');
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

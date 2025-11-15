@@ -3,6 +3,8 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
-  created_at: string;
+  grade?: string;
+  major?: string;
+  created_at?: string;
 }
 

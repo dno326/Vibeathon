@@ -127,9 +127,11 @@ class AuthService:
                 'user': {
                     'id': profile['id'],
                     'email': profile['email'],
-                    'first_name': profile['first_name'],
-                    'last_name': profile['last_name'],
-                    'created_at': profile['created_at']
+                    'first_name': profile.get('first_name', ''),
+                    'last_name': profile.get('last_name', ''),
+                    'grade': profile.get('grade'),
+                    'major': profile.get('major'),
+                    'created_at': profile.get('created_at')
                 },
                 'access_token': access_token
             }
@@ -192,9 +194,11 @@ class AuthService:
                 'user': {
                     'id': user_profile_data['id'],
                     'email': user_profile_data['email'],
-                    'first_name': user_profile_data['first_name'],
-                    'last_name': user_profile_data['last_name'],
-                    'created_at': user_profile_data['created_at']
+                    'first_name': user_profile_data.get('first_name', ''),
+                    'last_name': user_profile_data.get('last_name', ''),
+                    'grade': user_profile_data.get('grade'),
+                    'major': user_profile_data.get('major'),
+                    'created_at': user_profile_data.get('created_at')
                 },
                 'access_token': access_token
             }
@@ -215,9 +219,54 @@ class AuthService:
             return {
                 'id': user_profile.data['id'],
                 'email': user_profile.data['email'],
-                'first_name': user_profile.data['first_name'],
-                'last_name': user_profile.data['last_name'],
-                'created_at': user_profile.data['created_at']
+                'first_name': user_profile.data.get('first_name', ''),
+                'last_name': user_profile.data.get('last_name', ''),
+                'grade': user_profile.data.get('grade'),
+                'major': user_profile.data.get('major'),
+                'created_at': user_profile.data.get('created_at')
             }
         except Exception as e:
             raise NotFoundError(f"Failed to get user: {str(e)}")
+    
+    def update_user_profile(self, user_id: str, data: dict):
+        """Update user profile information."""
+        try:
+            # Only allow updating specific fields
+            allowed_fields = ['first_name', 'last_name', 'email', 'grade', 'major']
+            update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
+            
+            if not update_data:
+                raise ValidationError("No valid fields to update")
+            
+            # Validate required fields if they're being updated
+            if 'email' in update_data and not update_data['email'].strip():
+                raise ValidationError("Email cannot be empty")
+            if 'first_name' in update_data and not update_data['first_name'].strip():
+                raise ValidationError("First name cannot be empty")
+            if 'last_name' in update_data and not update_data['last_name'].strip():
+                raise ValidationError("Last name cannot be empty")
+            
+            # Update user profile
+            from app.core.config import Config
+            from supabase import create_client
+            
+            admin_client = create_client(Config.SUPABASE_URL, Config.SUPABASE_SERVICE_KEY)
+            result = admin_client.table('users').update(update_data).eq('id', user_id).execute()
+            
+            if not result.data or len(result.data) == 0:
+                raise NotFoundError("User not found")
+            
+            updated_user = result.data[0]
+            return {
+                'id': updated_user['id'],
+                'email': updated_user['email'],
+                'first_name': updated_user.get('first_name', ''),
+                'last_name': updated_user.get('last_name', ''),
+                'grade': updated_user.get('grade'),
+                'major': updated_user.get('major'),
+                'created_at': updated_user.get('created_at')
+            }
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ValidationError(f"Failed to update profile: {str(e)}")

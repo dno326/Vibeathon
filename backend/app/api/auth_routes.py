@@ -65,3 +65,20 @@ def get_current_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@auth_bp.route('/profile', methods=['PATCH'])
+@require_auth
+def update_profile():
+    """Update user profile."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        user_id = request.current_user.id
+        updated_user = auth_service.update_user_profile(user_id, data)
+        return jsonify(updated_user), 200
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
