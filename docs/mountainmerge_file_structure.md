@@ -1,6 +1,6 @@
-# InSync File Structure Specification
+# MountainMerge File Structure Specification
 
-This document details the recommended file structure for the **InSync** project, which consists of:
+This document details the recommended file structure for the **MountainMerge** project, which consists of:
 
 - A **React frontend**
 - A **Flask backend**
@@ -13,7 +13,7 @@ It is designed to be clear, scalable, and compatible with AI coding IDEs such as
 # 1. Root Directory Structure
 
 ```
-insync/
+mountainmerge/
   README.md
   .gitignore
   .env                # root environment variables (never commit)
@@ -233,8 +233,8 @@ scripts/
 
 ```
 docs/
-  insync_file_structure.md   # this file
-  InSync_spec.md             # full product + feature specification
+  mountainmerge_file_structure.md   # this file
+  MountainMerge_spec.md             # full product + feature specification
   api_contracts.md           # backend endpoint descriptions
 ```
 

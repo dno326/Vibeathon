@@ -1,11 +1,11 @@
-# InSync API Contracts
+# MountainMerge API Contracts
 
-This document defines the REST API contracts for the InSync backend (Flask).  
+This document defines the REST API contracts for the MountainMerge backend (Flask).  
 All responses are JSON. All times are ISO 8601 strings in UTC.
 
 Base URL examples:
 - Local: `http://localhost:5000/api`
-- Production: `https://api.insync.app/api` (example)
+- Production: `https://api.mountainmerge.app/api` (example)
 
 Authentication:
 - Most endpoints require a Bearer token: `Authorization: Bearer <JWT or Supabase token>`.

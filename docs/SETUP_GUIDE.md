@@ -1,6 +1,6 @@
-# InSync Supabase Setup Guide
+# MountainMerge Supabase Setup Guide
 
-This guide will walk you through setting up Supabase for the InSync application step by step.
+This guide will walk you through setting up Supabase for the MountainMerge application step by step.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This guide will walk you through setting up Supabase for the InSync application 
 1. Go to [https://supabase.com](https://supabase.com) and sign in (or create an account)
 2. Click **"New Project"** in the dashboard
 3. Fill in the project details:
-   - **Name**: `insync` (or any name you prefer)
+   - **Name**: `mountainmerge` (or any name you prefer)
    - **Database Password**: Choose a strong password (save this securely!)
    - **Region**: Choose the region closest to you
    - **Pricing Plan**: Select "Free" for development
@@ -231,5 +231,5 @@ After setting up the database:
 
 ---
 
-**Setup complete!** You're now ready to start building InSync. 🚀
+**Setup complete!** You're now ready to start building MountainMerge. 🚀
 

@@ -1,6 +1,6 @@
-# InSync Database Schema (Supabase / Postgres)
+# MountainMerge Database Schema (Supabase / Postgres)
 
-This document defines the logical database schema for InSync.  
+This document defines the logical database schema for MountainMerge.  
 Types assume PostgreSQL syntax.
 
 ---

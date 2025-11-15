@@ -1,7 +1,7 @@
 {
-  "name": "insync",
+  "name": "mountainmerge",
   "version": "1.0.0",
-  "description": "InSync - AI-powered collaborative study platform",
+  "description": "MountainMerge - AI-powered collaborative study platform",
   "private": true,
   "workspaces": [
     "frontend"

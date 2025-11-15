@@ -1,6 +1,6 @@
 # Database Schema Verification
 
-This document verifies that the database schema in `insync_db_schema.md` correctly supports all features defined in the InSync specification.
+This document verifies that the database schema in `mountainmerge_db_schema.md` correctly supports all features defined in the MountainMerge specification.
 
 ## ✅ Schema Verification Results
 
@@ -233,7 +233,7 @@ These are NOT required but could enhance the schema:
 
 ## Conclusion
 
-**The database schema is fully verified and correctly supports all features defined in the InSync specification.** 
+**The database schema is fully verified and correctly supports all features defined in the MountainMerge specification.** 
 
 The schema is:
 - ✅ **Complete** - All required tables and relationships are present

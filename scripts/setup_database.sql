@@ -1,4 +1,4 @@
--- InSync Database Setup Script
+-- MountainMerge Database Setup Script
 -- Run this script in your Supabase SQL Editor to create all tables, types, and indexes
 
 -- ============================================

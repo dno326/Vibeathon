@@ -1,10 +1,10 @@
-# InSync — Master Product & Development Specification
+# MountainMerge — Master Product & Development Specification
 
 ## 1. Product Overview
-InSync is a collaborative, AI‑powered study platform that helps students capture lecture content, transform it into clean structured notes, automatically generate flashcards, and collaborate inside shared class workspaces. It integrates audio transcription, slide extraction, summarization, flashcard generation, and social study features.
+MountainMerge is a collaborative, AI‑powered study platform that helps students capture lecture content, transform it into clean structured notes, automatically generate flashcards, and collaborate inside shared class workspaces. It integrates audio transcription, slide extraction, summarization, flashcard generation, and social study features.
 
 ## 2. Core User Flows
-### 2.1 Join InSync
+### 2.1 Join MountainMerge
 - User signs up or logs in using Supabase authentication.
 - User creates or joins class spaces using invite links or class codes.
 - User lands in the class dashboard showing sessions, notes, decks, and collaborators.
@@ -267,6 +267,6 @@ REST endpoints for:
 - Build a clean 2–3 minute demo flow.
 
 **Deliverables**
-- Fully working polished InSync MVP.
+- Fully working polished MountainMerge MVP.
 - Demo script and test data.
 

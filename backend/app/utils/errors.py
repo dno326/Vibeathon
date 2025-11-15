@@ -1,16 +1,16 @@
-class InSyncError(Exception):
-    """Base exception for InSync."""
+class MountainMergeError(Exception):
+    """Base exception for MountainMerge."""
     pass
 
-class NotFoundError(InSyncError):
+class NotFoundError(MountainMergeError):
     """Resource not found."""
     pass
 
-class UnauthorizedError(InSyncError):
+class UnauthorizedError(MountainMergeError):
     """Unauthorized access."""
     pass
 
-class ValidationError(InSyncError):
+class ValidationError(MountainMergeError):
     """Validation error."""
     pass
 
