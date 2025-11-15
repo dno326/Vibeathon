@@ -5,6 +5,7 @@ export interface User {
   last_name: string;
   grade?: string;
   major?: string;
+  profile_picture_url?: string;
   created_at?: string;
 }
 

@@ -5,6 +5,7 @@ import { handleApiError } from '../../utils/errorHandling';
 import Navbar from '../../components/layout/Navbar';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser, refreshUser } = useAuth();
@@ -62,6 +63,47 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleImageUpload = async (imageFile: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      
+      const response = await apiClient.post('/api/auth/profile/picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      if (response.data?.profile_picture_url) {
+        // Refresh user data to get updated profile picture
+        await refreshUser();
+        setMessage({ type: 'success', text: 'Profile picture uploaded successfully!' });
+      }
+    } catch (error: any) {
+      const errorMessage = handleApiError(error);
+      setMessage({ type: 'error', text: errorMessage });
+      throw error;
+    }
+  };
+
+  const handleImageUpdate = async (imageFile: File) => {
+    // Same as upload for now
+    return handleImageUpload(imageFile);
+  };
+
+  const getInitials = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    }
+    if (user?.first_name) {
+      return user.first_name[0].toUpperCase();
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return 'U';
+  };
+
   if (!user) {
     return null;
   }
@@ -86,6 +128,17 @@ const ProfilePage: React.FC = () => {
               {message.text}
             </div>
           )}
+
+          {/* Profile Picture Section */}
+          <div className="mb-8 pb-8 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Profile Picture</h2>
+            <ProfilePictureUpload
+              currentImageUrl={user.profile_picture_url}
+              initials={getInitials()}
+              onImageUpload={handleImageUpload}
+              onImageUpdate={handleImageUpdate}
+            />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -131,6 +131,7 @@ class AuthService:
                     'last_name': profile.get('last_name', ''),
                     'grade': profile.get('grade'),
                     'major': profile.get('major'),
+                    'profile_picture_url': profile.get('profile_picture_url'),
                     'created_at': profile.get('created_at')
                 },
                 'access_token': access_token
@@ -198,6 +199,7 @@ class AuthService:
                     'last_name': user_profile_data.get('last_name', ''),
                     'grade': user_profile_data.get('grade'),
                     'major': user_profile_data.get('major'),
+                    'profile_picture_url': user_profile_data.get('profile_picture_url'),
                     'created_at': user_profile_data.get('created_at')
                 },
                 'access_token': access_token
@@ -223,6 +225,7 @@ class AuthService:
                 'last_name': user_profile.data.get('last_name', ''),
                 'grade': user_profile.data.get('grade'),
                 'major': user_profile.data.get('major'),
+                'profile_picture_url': user_profile.data.get('profile_picture_url'),
                 'created_at': user_profile.data.get('created_at')
             }
         except Exception as e:
@@ -264,9 +267,91 @@ class AuthService:
                 'last_name': updated_user.get('last_name', ''),
                 'grade': updated_user.get('grade'),
                 'major': updated_user.get('major'),
+                'profile_picture_url': updated_user.get('profile_picture_url'),
                 'created_at': updated_user.get('created_at')
             }
         except ValidationError:
             raise
         except Exception as e:
             raise ValidationError(f"Failed to update profile: {str(e)}")
+    
+    def upload_profile_picture(self, user_id: str, file):
+        """Upload profile picture to Supabase storage and update user profile."""
+        try:
+            from app.core.config import Config
+            from supabase import create_client
+            import uuid
+            import os
+            
+            admin_client = create_client(Config.SUPABASE_URL, Config.SUPABASE_SERVICE_KEY)
+            
+            # Check if bucket exists, create if it doesn't
+            try:
+                buckets = admin_client.storage.list_buckets()
+                bucket_names = [b.name for b in buckets]
+                if 'profile-pictures' not in bucket_names:
+                    # Try to create the bucket
+                    try:
+                        admin_client.storage.create_bucket(
+                            'profile-pictures',
+                            options={'public': True}
+                        )
+                    except Exception as create_error:
+                        raise ValidationError(
+                            "Storage bucket 'profile-pictures' does not exist. "
+                            "Please create it in Supabase Dashboard: Storage → New Bucket → Name: 'profile-pictures' → Public: Yes"
+                        )
+            except Exception as bucket_error:
+                # If we can't check buckets, try to upload anyway
+                pass
+            
+            # Generate unique filename
+            file_ext = os.path.splitext(file.filename)[1] or '.jpg'
+            filename = f"{user_id}/{uuid.uuid4()}{file_ext}"
+            
+            # Upload to Supabase storage
+            file_data = file.read()
+            
+            # Upload file (upsert to replace if exists)
+            try:
+                result = admin_client.storage.from_('profile-pictures').upload(
+                    filename,
+                    file_data,
+                    file_options={
+                        "content-type": file.content_type or "image/jpeg",
+                        "upsert": "true"
+                    }
+                )
+            except Exception as upload_error:
+                error_msg = str(upload_error)
+                if 'bucket' in error_msg.lower() or 'not found' in error_msg.lower():
+                    raise ValidationError(
+                        "Storage bucket 'profile-pictures' does not exist. "
+                        "Please create it in Supabase Dashboard: Storage → New Bucket → Name: 'profile-pictures' → Public: Yes"
+                    )
+                raise
+            
+            # Get public URL
+            # Supabase storage public URL format: {SUPABASE_URL}/storage/v1/object/public/{bucket}/{path}
+            public_url = f"{Config.SUPABASE_URL}/storage/v1/object/public/profile-pictures/{filename}"
+            
+            # Update user profile with picture URL
+            update_result = admin_client.table('users').update({
+                'profile_picture_url': public_url
+            }).eq('id', user_id).execute()
+            
+            if not update_result.data or len(update_result.data) == 0:
+                raise ValidationError("Failed to update profile picture")
+            
+            return public_url
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            error_msg = str(e)
+            if 'bucket' in error_msg.lower() or 'not found' in error_msg.lower():
+                raise ValidationError(
+                    "Storage bucket 'profile-pictures' does not exist. "
+                    "Please create it in Supabase Dashboard: Storage → New Bucket → Name: 'profile-pictures' → Public: Yes"
+                )
+            raise ValidationError(f"Failed to upload profile picture: {error_msg}")

@@ -82,3 +82,27 @@ def update_profile():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@auth_bp.route('/profile/picture', methods=['POST'])
+@require_auth
+def upload_profile_picture():
+    """Upload profile picture."""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        # Validate file type
+        if not file.content_type or not file.content_type.startswith('image/'):
+            return jsonify({'error': 'File must be an image'}), 400
+        
+        user_id = request.current_user.id
+        picture_url = auth_service.upload_profile_picture(user_id, file)
+        return jsonify({'profile_picture_url': picture_url}), 200
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
