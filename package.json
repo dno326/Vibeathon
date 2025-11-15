@@ -1,0 +1,16 @@
+{
+  "name": "insync",
+  "version": "1.0.0",
+  "description": "InSync - AI-powered collaborative study platform",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && python -m flask run",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "pip install -r requirements.txt"
+  }
+}
+

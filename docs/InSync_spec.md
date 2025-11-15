@@ -125,7 +125,7 @@ InSync is a collaborative, AI‑powered study platform that helps students captu
 
 ## 6. Technical Architecture
 ### Frontend
-- React + Vite.
+- React.
 - Tailwind CSS.
 - Pages:
   - Login/signup
