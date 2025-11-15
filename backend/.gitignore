@@ -9,3 +9,7 @@ ENV/
 .env
 *.log
 
+# Virtual environment
+venv/
+.venv/
+
