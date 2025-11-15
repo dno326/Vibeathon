@@ -6,7 +6,11 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    CORS(app, origins=Config.CORS_ORIGINS)
+    # Enable CORS with proper configuration
+    CORS(app, 
+         origins=Config.CORS_ORIGINS,
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization'])
     
     # Register blueprints
     from app.api.auth_routes import auth_bp

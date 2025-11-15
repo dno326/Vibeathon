@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services.auth_service import AuthService
+from app.core.security import require_auth
+from app.utils.errors import ValidationError, UnauthorizedError, NotFoundError
 
 auth_bp = Blueprint('auth', __name__)
 auth_service = AuthService()
@@ -7,20 +9,59 @@ auth_service = AuthService()
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     """Register a new user."""
-    data = request.get_json()
-    # TODO: Implement signup
-    return jsonify({'message': 'Signup endpoint'}), 201
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        first_name = data.get('first_name', '').strip()
+        last_name = data.get('last_name', '').strip()
+        
+        if not email or not password or not first_name or not last_name:
+            return jsonify({'error': 'Email, password, first name, and last name are required'}), 400
+        
+        result = auth_service.signup(email, password, first_name, last_name)
+        return jsonify(result), 201
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """Authenticate an existing user."""
-    data = request.get_json()
-    # TODO: Implement login
-    return jsonify({'message': 'Login endpoint'}), 200
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required'}), 400
+        
+        result = auth_service.login(email, password)
+        return jsonify(result), 200
+    except UnauthorizedError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/me', methods=['GET'])
+@require_auth
 def get_current_user():
     """Return the currently authenticated user."""
-    # TODO: Implement get current user
-    return jsonify({'message': 'Get current user endpoint'}), 200
+    try:
+        user_id = request.current_user.id
+        user = auth_service.get_current_user(user_id)
+        return jsonify(user), 200
+    except NotFoundError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 

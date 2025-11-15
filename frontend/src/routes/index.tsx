@@ -12,8 +12,22 @@ import ProfilePage from '../pages/Profile/ProfilePage';
 
 export const routes = (
   <Routes>
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignupPage />} />
+    <Route
+      path="/login"
+      element={
+        <PublicRoute>
+          <LoginPage />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/signup"
+      element={
+        <PublicRoute>
+          <SignupPage />
+        </PublicRoute>
+      }
+    />
     <Route
       path="/dashboard"
       element={
@@ -70,11 +84,39 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

@@ -18,7 +18,8 @@ CREATE TYPE study_result AS ENUM ('again', 'hard', 'good', 'easy');
 CREATE TABLE IF NOT EXISTS users (
   id          uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email       text UNIQUE NOT NULL,
-  name        text NOT NULL,
+  first_name  text NOT NULL,
+  last_name   text NOT NULL,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
@@ -282,11 +283,12 @@ CREATE POLICY "Users can manage own study events" ON study_events
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.users (id, email, name)
+  INSERT INTO public.users (id, email, first_name, last_name)
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'name', NEW.email)
+    COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'last_name', '')
   );
   RETURN NEW;
 END;
