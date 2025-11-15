@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import LoginPage from '../pages/Auth/LoginPage';
 import SignupPage from '../pages/Auth/SignupPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
+import ClassesPage from '../pages/Classes/ClassesPage';
 import ClassPage from '../pages/Class/ClassPage';
 import SessionPage from '../pages/Session/SessionPage';
 import DeckPage from '../pages/Deck/DeckPage';
@@ -35,6 +36,14 @@ export const routes = (
       element={
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/classes"
+      element={
+        <ProtectedRoute>
+          <ClassesPage />
         </ProtectedRoute>
       }
     />

@@ -30,19 +30,9 @@ const Navbar: React.FC = () => {
           {/* Navigation Links */}
           <div className="flex items-center gap-1">
             <Link
-              to="/profile"
+              to="/classes"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                isActive('/profile')
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50'
-              }`}
-            >
-              Profile
-            </Link>
-            <Link
-              to="/dashboard"
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                isActive('/dashboard')
+                isActive('/classes')
                   ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
                   : 'text-gray-700 hover:bg-purple-50'
               }`}
@@ -68,6 +58,16 @@ const Navbar: React.FC = () => {
               }`}
             >
               Flashcards
+            </Link>
+            <Link
+              to="/profile"
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/profile')
+                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
+                  : 'text-gray-700 hover:bg-purple-50'
+              }`}
+            >
+              Profile
             </Link>
             <button
               onClick={handleLogout}
