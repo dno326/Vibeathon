@@ -415,3 +415,14 @@ class NoteService:
         c = self.admin.table('note_comments').insert(payload).execute()
         return c.data[0] if c.data else None
 
+    def delete_comment(self, note_id: str, comment_id: str, user_id: str):
+        # Ensure visibility and ownership
+        self.get_note_detail(note_id, user_id)
+        res = self.admin.table('note_comments').select('id, user_id').eq('id', comment_id).single().execute()
+        if not res.data:
+            raise NotFoundError('Comment not found')
+        if res.data['user_id'] != user_id:
+            raise UnauthorizedError('You can only delete your own comments')
+        self.admin.table('note_comments').delete().eq('id', comment_id).execute()
+        return True
+

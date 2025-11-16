@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { notesApi } from '../../lib/notesApi';
 import { formatDate } from '../../utils/formatDate';
 import Navbar from '../../components/layout/Navbar';
+import { useAuth } from '../../hooks/useAuth';
 
 const MountainIcon: React.FC<{ filled?: boolean; className?: string }> = ({ filled, className }) => (
   <svg viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className={className}>
@@ -38,7 +39,8 @@ const NoteViewPage: React.FC = () => {
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [replyOpenFor, setReplyOpenFor] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
+  const [replyTextById, setReplyTextById] = useState<Record<string, string>>({});
+  const { user } = useAuth();
 
   useEffect(() => {
     const load = async () => {
@@ -91,11 +93,12 @@ const NoteViewPage: React.FC = () => {
   };
 
   const submitReply = async (parentId: string) => {
-    if (!noteId || !replyText.trim()) return;
+    const text = (replyTextById[parentId] || '').trim();
+    if (!noteId || !text) return;
     try {
       setSubmittingComment(true);
-      await notesApi.addComment(noteId, replyText.trim(), parentId);
-      setReplyText('');
+      await notesApi.addComment(noteId, text, parentId);
+      setReplyTextById((m) => ({ ...m, [parentId]: '' }));
       setReplyOpenFor(null);
       const updated = await notesApi.getComments(noteId);
       setComments(updated);
@@ -108,27 +111,53 @@ const NoteViewPage: React.FC = () => {
   const Thread: React.FC<{ node: any; depth?: number }> = ({ node, depth = 0 }) => (
     <div className={`border border-gray-100 rounded-lg p-3 ${depth > 0 ? 'ml-4 mt-2' : ''}`}>
       <div className="text-sm text-gray-600 mb-1">
-        {node.author ? `${node.author.first_name} ${node.author.last_name}` : 'User'} · {formatDate(node.created_at)}
+        {node.author ? (
+          user?.id && node.user_id === user.id ? (
+            <span>{node.author.first_name} {node.author.last_name}</span>
+          ) : (
+            <Link to={`/user/${node.user_id}`} className="hover:underline">
+              {node.author.first_name} {node.author.last_name}
+            </Link>
+          )
+        ) : 'User'}
+        {' · '}{formatDate(node.created_at)}
       </div>
       <div className="text-gray-800 text-sm whitespace-pre-wrap">{node.content}</div>
       <div className="mt-2">
-        <button className="text-xs text-purple-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); setReplyText(''); }}>
+        <button type="button" className="text-xs text-purple-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); setReplyTextById((m) => ({ ...m, [node.id]: m[node.id] || '' })); }}>
           Reply
         </button>
+        {user?.id && node.user_id === user.id && (
+          <button
+            type="button"
+            className="ml-3 text-xs text-red-600 font-semibold"
+            onClick={async () => {
+              if (!noteId) return;
+              try {
+                await notesApi.deleteComment(noteId, node.id);
+                const updated = await notesApi.getComments(noteId);
+                setComments(updated);
+              } catch {}
+            }}
+          >
+            Delete
+          </button>
+        )}
       </div>
       {replyOpenFor === node.id && (
         <div className="mt-2 flex gap-2">
-          <input
-            type="text"
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
+          <textarea
+            value={replyTextById[node.id] || ''}
+            onChange={(e) => setReplyTextById((m) => ({ ...m, [node.id]: e.target.value }))}
             placeholder="Write a reply..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+            rows={3}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-y"
             disabled={submittingComment}
           />
           <button
+            type="button"
             onClick={() => submitReply(node.id)}
-            disabled={submittingComment || !replyText.trim()}
+            disabled={submittingComment || !(replyTextById[node.id] || '').trim()}
             className="px-3 py-2 bg-purple-600 text-white rounded-lg font-semibold disabled:opacity-50"
           >
             Reply

@@ -76,6 +76,20 @@ def add_comment(note_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@note_bp.route('/<note_id>/comments/<comment_id>', methods=['DELETE'])
+@require_auth
+def delete_comment(note_id, comment_id):
+    try:
+        user_id = request.current_user.id
+        note_service.delete_comment(note_id, comment_id, user_id)
+        return jsonify({'status': 'deleted'}), 200
+    except NotFoundError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except UnauthorizedError as e:
+        return jsonify({'error': e.message}), 403
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @note_bp.route('/<note_id>', methods=['PUT'])
 @require_auth
 def update_note(note_id):
