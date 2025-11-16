@@ -3,7 +3,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { classApi } from '../../lib/classApi';
 import { Class } from '../../types/classes';
 import ClassList from '../../components/classes/ClassList';
-import CreateClassModal from '../../components/classes/CreateClassModal';
 import JoinClassModal from '../../components/classes/JoinClassModal';
 import Navbar from '../../components/layout/Navbar';
 
@@ -11,7 +10,6 @@ const ClassesPage: React.FC = () => {
   const { user } = useAuth();
   const [classes, setClasses] = useState<(Class & { user_role?: string })[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
@@ -28,10 +26,6 @@ const ClassesPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClassCreated = () => {
-    loadClasses();
   };
 
   const handleClassJoined = () => {
@@ -53,13 +47,7 @@ const ClassesPage: React.FC = () => {
                 onClick={() => setShowJoinModal(true)}
                 className="px-4 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all"
               >
-                Join Class
-              </button>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
-              >
-                Create Class
+                Browse & Join Classes
               </button>
             </div>
           </div>
@@ -91,20 +79,14 @@ const ClassesPage: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">No classes yet</h3>
               <p className="text-gray-600 mb-6">
-                Get started by creating your first class or joining an existing one with a class code.
+                Browse the catalog and join a class to get started.
               </p>
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => setShowJoinModal(true)}
                   className="px-6 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all"
                 >
-                  Join Class
-                </button>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
-                >
-                  Create Class
+                  Browse & Join Classes
                 </button>
               </div>
             </div>
@@ -114,12 +96,7 @@ const ClassesPage: React.FC = () => {
         )}
       </div>
 
-      {/* Modals */}
-      <CreateClassModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSuccess={handleClassCreated}
-      />
+      {/* Join Modal */}
       <JoinClassModal
         isOpen={showJoinModal}
         onClose={() => setShowJoinModal(false)}

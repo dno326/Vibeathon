@@ -30,14 +30,14 @@ const EmptyState: React.FC<EmptyStateProps> = ({ title, message, actionLabel, on
           <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
         )}
         <p className="text-gray-600 mb-6">{message}</p>
-        {actionLabel && onAction && (
+      {actionLabel && onAction && (
           <button
             onClick={onAction}
             className="px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
           >
             {actionLabel}
           </button>
-        )}
+      )}
       </div>
     </div>
   );

@@ -19,9 +19,8 @@ def create_class():
         if not name:
             return jsonify({'error': 'Class name is required'}), 400
         
-        owner_id = request.current_user.id
-        
-        class_data = class_service.create_class(name, owner_id)
+        user_id = request.current_user.id
+        class_data = class_service.create_class(name, user_id)
         return jsonify(class_data), 201
         
     except ValidationError as e:
@@ -32,19 +31,18 @@ def create_class():
 @class_bp.route('/join', methods=['POST'])
 @require_auth
 def join_class():
-    """Join an existing class by code."""
+    """Join an existing class by id."""
     try:
         data = request.get_json()
         if not data:
             return jsonify({'error': 'Request body is required'}), 400
         
-        code = data.get('code', '').strip()
-        if not code:
-            return jsonify({'error': 'Class code is required'}), 400
+        class_id = data.get('class_id', '').strip()
+        if not class_id:
+            return jsonify({'error': 'Class ID is required'}), 400
         
         user_id = request.current_user.id
-        
-        class_data = class_service.join_class(code, user_id)
+        class_data = class_service.join_class_by_id(class_id, user_id)
         return jsonify(class_data), 200
         
     except ValidationError as e:
@@ -63,6 +61,18 @@ def list_classes():
         classes = class_service.get_user_classes(user_id)
         return jsonify({'classes': classes}), 200
         
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@class_bp.route('/all', methods=['GET'])
+@require_auth
+def list_all_classes():
+    """List all classes in catalog (public listing)."""
+    try:
+        classes = class_service.list_all_classes()
+        return jsonify({'classes': classes}), 200
     except ValidationError as e:
         return jsonify({'error': e.message}), e.status_code
     except Exception as e:

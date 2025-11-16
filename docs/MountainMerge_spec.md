@@ -221,19 +221,7 @@ REST endpoints for:
 
 ---
 
-### Milestone 5 — Notes Management (3–6 hours)
-**Goals**
-- Build note editor component.
-- Allow editing and saving notes.
-- Merge audio-derived notes and slide-derived notes.
-
-**Deliverables**
-- Rich text editor.
-- “Master note” view for each Session.
-
----
-
-### Milestone 6 — Flashcards System (6–8 hours)
+### Milestone 5 — Flashcards System (6–8 hours)
 **Goals**
 - Generate flashcards from notes.
 - Build deck system.
@@ -246,7 +234,7 @@ REST endpoints for:
 
 ---
 
-### Milestone 7 — Collaboration (6–8 hours)
+### Milestone 6 — Collaboration (6–8 hours)
 **Goals**
 - Comments on notes.
 - Upvotes on notes and flashcards.
@@ -259,7 +247,7 @@ REST endpoints for:
 
 ---
 
-### Milestone 8 — Final Polish / Hackathon Demo (2–4 hours)
+### Milestone 7 — Final Polish / Hackathon Demo (2–4 hours)
 **Goals**
 - Improve UI design.
 - Add loading states & smooth transitions.

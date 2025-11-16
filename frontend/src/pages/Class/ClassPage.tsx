@@ -79,16 +79,6 @@ const ClassPage: React.FC = () => {
                 {classData.name}
               </h1>
             </div>
-            <div className="flex items-center gap-4">
-              {classData.user_role === 'owner' && (
-                <span className="px-3 py-1 text-sm font-semibold bg-purple-100 text-purple-700 rounded-lg">
-                  Owner
-                </span>
-              )}
-              <span className="text-sm text-gray-600">
-                Code: <span className="font-mono font-semibold text-purple-600">{classData.code}</span>
-              </span>
-            </div>
           </div>
         </div>
       </div>
@@ -103,10 +93,6 @@ const ClassPage: React.FC = () => {
               <p className="text-lg font-semibold text-gray-800">{classData.name}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Class Code</p>
-              <p className="text-lg font-mono font-semibold text-purple-600">{classData.code}</p>
-            </div>
-            <div>
               <p className="text-sm text-gray-500 mb-1">Created</p>
               <p className="text-lg font-semibold text-gray-800">{formatDate(classData.created_at)}</p>
             </div>
@@ -115,15 +101,15 @@ const ClassPage: React.FC = () => {
 
         {/* Placeholder for future content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Sessions section */}
+          {/* Notes section */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Sessions</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Notes</h2>
             <div className="text-center py-12 text-gray-500">
               <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p>No sessions yet</p>
-              <p className="text-sm mt-2">Sessions will appear here when you upload audio or slides</p>
+              <p>No notes yet</p>
+              <p className="text-sm mt-2">Create or upload notes to see them here</p>
             </div>
           </div>
 

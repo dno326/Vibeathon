@@ -209,7 +209,7 @@ const ProfilePage: React.FC = () => {
                 </select>
               </div>
 
-              <div>
+    <div>
                 <label htmlFor="major" className="block text-sm font-medium text-gray-700 mb-2">
                   Major
                 </label>

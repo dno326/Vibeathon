@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { classApi } from '../../lib/classApi';
+import { Class } from '../../types/classes';
 
 interface JoinClassModalProps {
   isOpen: boolean;
@@ -8,29 +9,63 @@ interface JoinClassModalProps {
 }
 
 const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [code, setCode] = useState('');
+  const [allClasses, setAllClasses] = useState<Class[]>([]);
+  const [search, setSearch] = useState('');
+  const [selectedClassId, setSelectedClassId] = useState<string>('');
+  const [newClassName, setNewClassName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const list = await classApi.getAllClasses();
+        setAllClasses(list);
+      } catch (e: any) {
+        setError(e.response?.data?.error || 'Failed to load classes');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [isOpen]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return allClasses;
+    return allClasses.filter(c => c.name.toLowerCase().includes(q));
+  }, [allClasses, search]);
+
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) {
-      setError('Class code is required');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+  const handleJoin = async () => {
+    if (!selectedClassId) return;
     try {
-      await classApi.joinClass(code.trim().toUpperCase());
-      setCode('');
+      setLoading(true);
+      setError(null);
+      await classApi.joinClassById(selectedClassId);
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to join class');
+    } catch (e: any) {
+      setError(e.response?.data?.error || 'Failed to join class');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateAndJoin = async () => {
+    if (!newClassName.trim()) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const created = await classApi.createClass(newClassName.trim());
+      await classApi.joinClassById(created.id);
+      onSuccess();
+      onClose();
+    } catch (e: any) {
+      setError(e.response?.data?.error || 'Failed to create class');
     } finally {
       setLoading(false);
     }
@@ -42,56 +77,94 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all"
+        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Join a Class</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="classCode" className="block text-sm font-medium text-gray-700 mb-2">
-              Class Code
-            </label>
-            <input
-              id="classCode"
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="Enter 6-character code"
-              maxLength={10}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-center text-2xl font-mono tracking-widest uppercase"
-              disabled={loading}
-              autoFocus
-            />
-            <p className="mt-2 text-sm text-gray-500 text-center">
-              Ask your instructor or classmate for the class code
-            </p>
-          </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Find your class</h2>
+        <p className="text-gray-600 mb-4">Search and select a class to join. If you don't see it, add a new one.</p>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-              {error}
-            </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search classes by name"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="max-h-64 overflow-y-auto border border-gray-100 rounded-xl">
+          {loading ? (
+            <div className="p-6 text-center text-gray-600">Loading classes...</div>
+          ) : filtered.length === 0 ? (
+            <div className="p-6 text-center text-gray-600">No classes found.</div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {filtered.map((cls) => (
+                <li key={cls.id} className="p-3 flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-gray-800">{cls.name}</div>
+                    <div className="text-xs text-gray-500">{new Date(cls.created_at).toLocaleString()}</div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="classSelect"
+                    checked={selectedClassId === cls.id}
+                    onChange={() => setSelectedClassId(cls.id)}
+                  />
+                </li>
+              ))}
+            </ul>
           )}
+        </div>
 
-          <div className="flex gap-3">
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={handleJoin}
+            disabled={loading || !selectedClassId}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Joining...' : 'Join Selected'}
+          </button>
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newClassName}
+              onChange={(e) => setNewClassName(e.target.value)}
+              placeholder="Add new class name"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+              disabled={loading}
+            />
             <button
               type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50"
+              onClick={handleCreateAndJoin}
+              disabled={loading || !newClassName.trim()}
+              className="px-4 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !code.trim()}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Joining...' : 'Join Class'}
+              {loading ? 'Creating...' : 'Add Class'}
             </button>
           </div>
-        </form>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

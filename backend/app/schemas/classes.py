@@ -3,8 +3,7 @@ from typing import Optional
 
 class CreateClassRequest(BaseModel):
     name: str
-    code: Optional[str] = None
 
 class JoinClassRequest(BaseModel):
-    code: str
+    class_id: str
 

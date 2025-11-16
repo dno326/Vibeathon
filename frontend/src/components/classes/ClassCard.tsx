@@ -23,20 +23,9 @@ const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
         <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors">
           {classData.name}
         </h3>
-        {classData.user_role === 'owner' && (
-          <span className="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded-lg">
-            Owner
-          </span>
-        )}
       </div>
       
       <div className="space-y-2 text-sm text-gray-600">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">Code:</span>
-          <span className="font-mono bg-gray-100 px-2 py-1 rounded text-purple-600 font-semibold">
-            {classData.code}
-          </span>
-        </div>
         <div className="flex items-center gap-2">
           <span className="font-medium">Created:</span>
           <span>{formatDate(classData.created_at)}</span>

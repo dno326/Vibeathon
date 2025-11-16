@@ -5,11 +5,14 @@ import { classApi } from '../../lib/classApi';
 import { Class } from '../../types/classes';
 import Navbar from '../../components/layout/Navbar';
 import ClassCard from '../../components/classes/ClassCard';
+import ClassList from '../../components/classes/ClassList';
+import JoinClassModal from '../../components/classes/JoinClassModal';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [classes, setClasses] = useState<(Class & { user_role?: string })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
     loadClasses();
@@ -19,13 +22,16 @@ const DashboardPage: React.FC = () => {
     try {
       setLoading(true);
       const userClasses = await classApi.getClasses();
-      // Show only first 6 classes on dashboard
-      setClasses(userClasses.slice(0, 6));
+      setClasses(userClasses);
     } catch (error) {
       console.error('Failed to load classes:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClassJoined = () => {
+    loadClasses();
   };
 
   return (
@@ -37,7 +43,7 @@ const DashboardPage: React.FC = () => {
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             Welcome Back, {user?.first_name || 'there'}!
-          </h1>
+            </h1>
           <p className="text-lg text-gray-600">Here's a quick overview of your activity</p>
         </div>
 
@@ -106,32 +112,24 @@ const DashboardPage: React.FC = () => {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </div>
+          </div>
             <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-violet-600 transition-colors">
               My Flashcards
             </h3>
             <p className="text-gray-600">Study with your flashcard decks</p>
           </Link>
-        </div>
+      </div>
 
         {/* Recent Classes Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Your Classes</h2>
-            <Link
-              to="/classes"
-              className="text-purple-600 font-semibold hover:text-purple-700 transition-colors flex items-center gap-2"
+            <button
+              onClick={() => setShowJoinModal(true)}
+              className="px-4 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all"
             >
-              View All
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+              Browse & Join Classes
+            </button>
           </div>
         </div>
 
@@ -159,23 +157,26 @@ const DashboardPage: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">No classes yet</h3>
             <p className="text-gray-600 mb-6">
-              Get started by creating your first class or joining an existing one.
+              Browse the catalog and join a class to get started.
             </p>
-            <Link
-              to="/classes"
-              className="inline-block px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+            <button
+              onClick={() => setShowJoinModal(true)}
+              className="inline-block px-6 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all"
             >
-              Go to Classes
-            </Link>
+              Browse & Join Classes
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {classes.map((classData) => (
-              <ClassCard key={classData.id} classData={classData} />
-            ))}
-          </div>
+          <ClassList classes={classes} />
         )}
       </div>
+
+      {/* Join Modal */}
+      <JoinClassModal
+        isOpen={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onSuccess={handleClassJoined}
+      />
     </div>
   );
 };
