@@ -247,24 +247,37 @@ class NoteService:
         pass
 
     def get_note_detail(self, note_id: str, user_id: str):
-        res = self.admin.table('notes').select('*').eq('id', note_id).single().execute()
-        if not res.data:
+        res = self.admin.table('notes').select('*').eq('id', note_id).execute()
+        rows = res.data or []
+        if not rows:
             raise NotFoundError("Note not found")
-        note = res.data
-        author_res = self.admin.table('users').select('id, first_name, last_name').eq('id', note['created_by']).single().execute()
+        note = rows[0]
+        # author
         note['author'] = None
-        if author_res.data:
-            note['author'] = {
-                'id': author_res.data['id'],
-                'first_name': author_res.data.get('first_name', ''),
-                'last_name': author_res.data.get('last_name', ''),
-            }
-        sess_res = self.admin.table('sessions').select('class_id').eq('id', note['session_id']).single().execute()
+        try:
+            ares = self.admin.table('users').select('id, first_name, last_name').eq('id', note['created_by']).execute()
+            arows = ares.data or []
+            if arows:
+                note['author'] = {
+                    'id': arows[0]['id'],
+                    'first_name': arows[0].get('first_name', ''),
+                    'last_name': arows[0].get('last_name', ''),
+                }
+        except Exception:
+            pass
+        # class via session
         note['cls'] = None
-        if sess_res.data and sess_res.data.get('class_id'):
-            cls_res = self.admin.table('classes').select('id, name').eq('id', sess_res.data['class_id']).single().execute()
-            if cls_res.data:
-                note['cls'] = {'id': cls_res.data['id'], 'name': cls_res.data.get('name', '')}
+        try:
+            sres = self.admin.table('sessions').select('class_id').eq('id', note['session_id']).execute()
+            srows = sres.data or []
+            class_id = srows[0]['class_id'] if srows and srows[0].get('class_id') else None
+            if class_id:
+                cres = self.admin.table('classes').select('id, name').eq('id', class_id).execute()
+                crows = cres.data or []
+                if crows:
+                    note['cls'] = {'id': crows[0]['id'], 'name': crows[0].get('name', '')}
+        except Exception:
+            pass
         return note
 
     def delete_note(self, note_id: str, user_id: str):

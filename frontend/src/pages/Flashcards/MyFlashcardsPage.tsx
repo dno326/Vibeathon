@@ -4,6 +4,12 @@ import { flashcardsApi } from '../../lib/flashcardsApi';
 import { classApi } from '../../lib/classApi';
 import { useNavigate } from 'react-router-dom';
 
+const MountainIcon: React.FC<{ className?: string }>=({ className })=> (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M3 20h18l-6-9-3 4-2-3-7 8z" />
+  </svg>
+);
+
 const UploadDeckModal: React.FC<{ isOpen: boolean; onClose: () => void; onCreated: () => void }>=({ isOpen, onClose, onCreated })=>{
   const [files, setFiles] = useState<File[]>([]);
   const [classId, setClassId] = useState('');
@@ -44,21 +50,36 @@ const UploadDeckModal: React.FC<{ isOpen: boolean; onClose: () => void; onCreate
   );
 };
 
-const DeckCard: React.FC<{ deck: any }>=({ deck })=>{
+const DeckCard: React.FC<{ deck: any, count?: number }>=({ deck, count })=>{
   const navigate = useNavigate();
   return (
     <div role="button" onClick={()=>navigate(`/deck/${deck.id}`)} className="p-4 bg-white rounded-xl border shadow hover:shadow-md">
       <div className="text-base font-semibold text-gray-900">{deck.title}</div>
       <div className="text-sm text-gray-500 mt-1">{deck.cls?.name || 'Class'}</div>
+      <div className="mt-2 inline-flex items-center gap-1 text-purple-700 text-sm">
+        <MountainIcon className="h-4 w-4" /> {count ?? 0}
+      </div>
     </div>
   );
 };
 
 const MyFlashcardsPage: React.FC = () => {
   const [decks, setDecks] = useState<Array<any>>([]);
+  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
   const [open, setOpen] = useState(false);
   useEffect(()=>{ flashcardsApi.listMyDecks().then(setDecks).catch(()=>{}); },[]);
   const refresh = async ()=>{ const d = await flashcardsApi.listMyDecks(); setDecks(d); };
+  useEffect(()=>{
+    let cancelled=false;
+    const loadCounts=async()=>{
+      try{
+        const entries = await Promise.all((decks||[]).map(async(d)=>{ try{ const v=await flashcardsApi.getVotes(d.id); return [d.id, v.count] as const; } catch { return [d.id,0] as const; } }));
+        if(!cancelled){ const obj:Record<string,number>={}; entries.forEach(([id,c])=>obj[id]=c); setVoteCounts(obj);} 
+      }catch{}
+    };
+    if(decks.length>0) loadCounts();
+    return ()=>{ cancelled=true; };
+  },[decks]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
       <Navbar />
@@ -71,7 +92,7 @@ const MyFlashcardsPage: React.FC = () => {
           <div className="text-gray-500">No decks yet.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {decks.map(d => <DeckCard key={d.id} deck={d} />)}
+            {decks.map(d => <DeckCard key={d.id} deck={d} count={voteCounts[d.id]} />)}
           </div>
         )}
       </div>

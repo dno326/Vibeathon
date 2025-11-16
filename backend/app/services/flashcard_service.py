@@ -45,6 +45,13 @@ class FlashcardService:
             if c.data:
                 cls = {'id': c.data['id'], 'name': c.data.get('name','')}
         deck['cls'] = cls
+        # attach author
+        try:
+            u = self.admin.table('users').select('id, first_name, last_name').eq('id', deck.get('created_by')).single().execute()
+            if u.data:
+                deck['author'] = {'id': u.data['id'], 'first_name': u.data.get('first_name',''), 'last_name': u.data.get('last_name','')}
+        except Exception:
+            pass
         return deck
     
     def create_card(self, deck_id: str, question: str, answer: str, user_id: str, topic: str = None):
@@ -234,5 +241,14 @@ class FlashcardService:
         res = self.admin.table('flashcard_decks').select('*').eq('class_id', class_id).execute()
         decks = [d for d in (res.data or []) if not ('public' in d and d['public'] is False)]
         decks.sort(key=lambda x: x.get('created_at') or '', reverse=True)
+        # attach authors
+        user_ids = list({d.get('created_by') for d in decks if d.get('created_by')})
+        users_map = {}
+        if user_ids:
+            u = self.admin.table('users').select('id, first_name, last_name').in_('id', user_ids).execute()
+            for row in (u.data or []):
+                users_map[row['id']] = {'id': row['id'], 'first_name': row.get('first_name',''), 'last_name': row.get('last_name','')}
+        for d in decks:
+            d['author'] = users_map.get(d.get('created_by'))
         return decks
 

@@ -9,6 +9,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { flashcardsApi } from '../../lib/flashcardsApi';
 import { useNavigate as useNav } from 'react-router-dom';
 
+const MountainIcon: React.FC<{ className?: string }>=({ className })=> (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M3 20h18l-6-9-3 4-2-3-7 8z" />
+  </svg>
+);
+
 const ClassPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
@@ -18,6 +24,7 @@ const ClassPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string; author?: any }>>([]);
   const [classDecks, setClassDecks] = useState<Array<any>>([]);
+  const [deckVoteCounts, setDeckVoteCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (classId) {
@@ -59,6 +66,20 @@ const ClassPage: React.FC = () => {
       setClassDecks(decks);
     } catch {}
   };
+
+  useEffect(()=>{
+    let cancelled = false;
+    const loadCounts = async ()=>{
+      try{
+        const entries = await Promise.all((classDecks||[]).map(async (d)=>{
+          try { const v = await flashcardsApi.getVotes(d.id); return [d.id, v.count] as const; } catch { return [d.id, 0] as const; }
+        }));
+        if(!cancelled){ const obj: Record<string, number> = {}; entries.forEach(([id,c])=>obj[id]=c); setDeckVoteCounts(obj); }
+      } catch {}
+    };
+    if(classDecks.length>0) loadCounts();
+    return ()=>{ cancelled = true; };
+  },[classDecks]);
 
   if (loading) {
     return (
@@ -167,6 +188,14 @@ const ClassPage: React.FC = () => {
                   <div key={d.id} className="p-4 bg-white rounded-xl border shadow hover:shadow-md cursor-pointer" onClick={()=>navigate(`/deck/${d.id}`)}>
                     <div className="text-base font-semibold text-gray-900">{d.title}</div>
                     <div className="text-sm text-gray-500 mt-1">{d.cls?.name || 'Class'}</div>
+                    {d.author && (
+                      <div className="text-sm text-gray-600 mt-1" onClick={(e)=>{ e.stopPropagation(); navigate(`/user/${d.author.id}`); }}>
+                        Added by {d.author.first_name} {d.author.last_name}
+                      </div>
+                    )}
+                    <div className="mt-2 inline-flex items-center gap-1 text-purple-700 text-sm">
+                      <MountainIcon className="h-4 w-4" /> {deckVoteCounts[d.id] ?? 0}
+                    </div>
                   </div>
                 ))}
               </div>

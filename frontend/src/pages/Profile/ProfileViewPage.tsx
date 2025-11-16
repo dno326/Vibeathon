@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import apiClient from '../../lib/apiClient';
 import { notesApi } from '../../lib/notesApi';
@@ -15,6 +15,7 @@ function getInitials(first?: string, last?: string) {
 
 const ProfileViewPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [publicNotes, setPublicNotes] = useState<any[]>([]);
@@ -54,6 +55,11 @@ const ProfileViewPage: React.FC = () => {
           <div className="text-center py-12 text-gray-600">User not found</div>
         ) : (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+            <button onClick={()=>navigate(-1)} className="mb-4 p-2 hover:bg-gray-100 rounded-lg" aria-label="Go back">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
             <div className="flex items-center gap-4 mb-4">
               {user.profile_picture_url ? (
                 <img
