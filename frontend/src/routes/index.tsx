@@ -12,6 +12,7 @@ import StudyModePage from '../pages/Study/StudyModePage';
 import ProfilePage from '../pages/Profile/ProfilePage';
 import NotesPage from '../pages/Notes/NotesPage';
 import FlashcardsPage from '../pages/Flashcards/FlashcardsPage';
+import ProfileViewPage from '../pages/Profile/ProfileViewPage';
 
 export const routes = (
   <Routes>
@@ -84,6 +85,14 @@ export const routes = (
       element={
         <ProtectedRoute>
           <ProfilePage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/user/:userId"
+      element={
+        <ProtectedRoute>
+          <ProfileViewPage />
         </ProtectedRoute>
       }
     />

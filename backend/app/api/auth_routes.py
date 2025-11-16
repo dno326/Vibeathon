@@ -106,3 +106,14 @@ def upload_profile_picture():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@auth_bp.route('/user/<user_id>', methods=['GET'])
+@require_auth
+def get_user_public(user_id):
+    try:
+      user = auth_service.get_current_user(user_id)
+      return jsonify(user), 200
+    except NotFoundError as e:
+      return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+      return jsonify({'error': str(e)}), 500
+

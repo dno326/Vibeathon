@@ -4,10 +4,12 @@ import EmptyState from '../../components/common/EmptyState';
 import CreateNoteModal from '../../components/notes/CreateNoteModal';
 import { notesApi } from '../../lib/notesApi';
 import NoteList from '../../components/notes/NoteList';
+import { useAuth } from '../../hooks/useAuth';
 
 const NotesPage: React.FC = () => {
+  const { user } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
-  const [notes, setNotes] = useState<Array<{ id: string; content: string; created_at: string; public: boolean }>>([]);
+  const [notes, setNotes] = useState<Array<{ id: string; content: string; created_at: string; public: boolean; author?: any }>>([]);
   const [loading, setLoading] = useState(true);
 
   const loadNotes = async () => {
@@ -61,7 +63,7 @@ const NotesPage: React.FC = () => {
             onAction={() => setShowCreate(true)}
           />
         ) : (
-          <NoteList notes={notes} />
+          <NoteList notes={notes as any} currentUserId={user?.id} />
         )}
       </div>
 

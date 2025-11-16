@@ -77,11 +77,29 @@ class NoteService:
         # TODO: Implement merge notes
         pass
 
+    def _attach_authors(self, notes):
+        if not notes:
+            return []
+        user_ids = list({n.get('created_by') for n in notes if n.get('created_by')})
+        authors_map = {}
+        if user_ids:
+            users_res = self.admin.table('users').select('id, first_name, last_name').in_('id', user_ids).execute()
+            for u in (users_res.data or []):
+                authors_map[u['id']] = {
+                    'id': u['id'],
+                    'first_name': u.get('first_name', ''),
+                    'last_name': u.get('last_name', ''),
+                }
+        for n in notes:
+            n['author'] = authors_map.get(n.get('created_by'))
+        return notes
+
     def list_notes_for_user(self, user_id: str):
         """List notes created by the user (any class)."""
         try:
-            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at').eq('created_by', user_id).order('created_at', desc=True).execute()
-            return res.data or []
+            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at, created_by').eq('created_by', user_id).order('created_at', desc=True).execute()
+            notes = res.data or []
+            return self._attach_authors(notes)
         except Exception as e:
             raise ValidationError(f"Failed to list notes: {str(e)}")
 
@@ -98,8 +116,9 @@ class NoteService:
             session_ids = [s['id'] for s in (sess.data or [])]
             if not session_ids:
                 return []
-            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at').in_('session_id', session_ids).eq('public', True).order('created_at', desc=True).execute()
-            return res.data or []
+            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at, created_by').in_('session_id', session_ids).eq('public', True).order('created_at', desc=True).execute()
+            notes = res.data or []
+            return self._attach_authors(notes)
         except Exception as e:
             raise ValidationError(f"Failed to list class notes: {str(e)}")
 

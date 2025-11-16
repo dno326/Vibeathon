@@ -5,14 +5,16 @@ import { Class } from '../../types/classes';
 import { formatDate } from '../../utils/formatDate';
 import { notesApi } from '../../lib/notesApi';
 import NoteList from '../../components/notes/NoteList';
+import { useAuth } from '../../hooks/useAuth';
 
 const ClassPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [classData, setClassData] = useState<(Class & { user_role?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string }>>([]);
+  const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string; author?: any }>>([]);
 
   useEffect(() => {
     if (classId) {
@@ -118,7 +120,7 @@ const ClassPage: React.FC = () => {
           {/* Notes section */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Notes</h2>
-            <NoteList notes={classNotes as any} emptyText="No public notes yet" />
+            <NoteList notes={classNotes as any} emptyText="No public notes yet" currentUserId={user?.id} />
           </div>
 
           {/* Decks section */}
