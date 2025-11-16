@@ -70,7 +70,7 @@ const NotesPage: React.FC = () => {
             onAction={() => setShowCreate(true)}
           />
         ) : (
-          <NoteList notes={notes as any} currentUserId={user?.id} onDelete={handleDelete} />
+          <NoteList notes={notes as any} currentUserId={user?.id} onDelete={handleDelete} backTo="/notes" />
         )}
       </div>
 

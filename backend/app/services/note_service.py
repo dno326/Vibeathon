@@ -247,7 +247,7 @@ class NoteService:
         pass
 
     def get_note_detail(self, note_id: str, user_id: str):
-        res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').eq('id', note_id).single().execute()
+        res = self.admin.table('notes').select('*').eq('id', note_id).single().execute()
         if not res.data:
             raise NotFoundError("Note not found")
         note = res.data
@@ -322,7 +322,7 @@ class NoteService:
 
     def list_notes_for_user(self, user_id: str):
         try:
-            res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').eq('created_by', user_id).order('created_at', desc=True).execute()
+            res = self.admin.table('notes').select('*').eq('created_by', user_id).order('created_at', desc=True).execute()
             notes = res.data or []
             notes = self._attach_authors(notes)
             notes = self._attach_classes_via_sessions(notes)
@@ -339,8 +339,22 @@ class NoteService:
             session_ids = [s['id'] for s in (sess.data or [])]
             if not session_ids:
                 return []
-            res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').in_('session_id', session_ids).eq('public', True).order('created_at', desc=True).execute()
+            # Fetch notes without relying on a 'public' column existing in the DB
+            res = self.admin.table('notes').select('*').in_('session_id', session_ids).execute()
             notes = res.data or []
+            # If a 'public' flag exists on rows, enforce it here; otherwise treat as public by default
+            filtered = []
+            for n in notes:
+                if 'public' in n and n['public'] is False:
+                    continue
+                filtered.append(n)
+            notes = filtered
+            # Sort newest first by created_at if present
+            try:
+                notes.sort(key=lambda n: n.get('created_at') or '', reverse=True)
+            except Exception:
+                pass
+
             notes = self._attach_authors(notes)
             cls_res = self.admin.table('classes').select('id, name').eq('id', class_id).single().execute()
             cls = None
@@ -351,4 +365,53 @@ class NoteService:
             return notes
         except Exception as e:
             raise ValidationError(f"Failed to list class notes: {str(e)}")
+
+    def get_note_votes_count(self, note_id: str, user_id: str):
+        # Ensure member of the class
+        note = self.get_note_detail(note_id, user_id)
+        res = self.admin.table('note_votes').select('note_id', count='exact').eq('note_id', note_id).execute()
+        count = res.count or 0
+        # Check if user voted
+        mine = self.admin.table('note_votes').select('note_id').eq('note_id', note_id).eq('user_id', user_id).execute()
+        return {'count': count, 'user_has_voted': bool(mine.data)}
+
+    def upsert_vote(self, note_id: str, user_id: str):
+        # Ensure visibility
+        self.get_note_detail(note_id, user_id)
+        # Insert vote; primary key prevents duplicates
+        self.admin.table('note_votes').insert({'note_id': note_id, 'user_id': user_id}).execute()
+        return self.get_note_votes_count(note_id, user_id)
+
+    def remove_vote(self, note_id: str, user_id: str):
+        self.admin.table('note_votes').delete().eq('note_id', note_id).eq('user_id', user_id).execute()
+        return self.get_note_votes_count(note_id, user_id)
+
+    def list_comments(self, note_id: str, user_id: str):
+        # Ensure member of the class
+        self.get_note_detail(note_id, user_id)
+        res = self.admin.table('note_comments').select('id, note_id, user_id, content, created_at, parent_id').eq('note_id', note_id).order('created_at').execute()
+        comments = res.data or []
+        # Attach author names
+        for c in comments:
+            u = self.admin.table('users').select('first_name, last_name').eq('id', c['user_id']).single().execute()
+            c['author'] = {
+                'first_name': u.data.get('first_name', '') if u.data else '',
+                'last_name': u.data.get('last_name', '') if u.data else '',
+            }
+        return comments
+
+    def add_comment(self, note_id: str, user_id: str, content: str, parent_id: str | None = None):
+        if not content or not content.strip():
+            raise ValidationError('Comment cannot be empty')
+        # Ensure visibility
+        self.get_note_detail(note_id, user_id)
+        payload = {'note_id': note_id, 'user_id': user_id, 'content': content.strip()[:2000]}
+        if parent_id:
+            # Validate parent belongs to same note
+            p = self.admin.table('note_comments').select('id, note_id').eq('id', parent_id).single().execute()
+            if not p.data or p.data['note_id'] != note_id:
+                raise ValidationError('Invalid parent comment')
+            payload['parent_id'] = parent_id
+        c = self.admin.table('note_comments').insert(payload).execute()
+        return c.data[0] if c.data else None
 

@@ -21,6 +21,61 @@ def get_note(note_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@note_bp.route('/<note_id>/votes', methods=['GET'])
+@require_auth
+def get_votes(note_id):
+    try:
+        user_id = request.current_user.id
+        data = note_service.get_note_votes_count(note_id, user_id)
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@note_bp.route('/<note_id>/votes', methods=['POST'])
+@require_auth
+def add_vote(note_id):
+    try:
+        user_id = request.current_user.id
+        data = note_service.upsert_vote(note_id, user_id)
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@note_bp.route('/<note_id>/votes', methods=['DELETE'])
+@require_auth
+def remove_vote(note_id):
+    try:
+        user_id = request.current_user.id
+        data = note_service.remove_vote(note_id, user_id)
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@note_bp.route('/<note_id>/comments', methods=['GET'])
+@require_auth
+def list_comments(note_id):
+    try:
+        user_id = request.current_user.id
+        comments = note_service.list_comments(note_id, user_id)
+        return jsonify({'comments': comments}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@note_bp.route('/<note_id>/comments', methods=['POST'])
+@require_auth
+def add_comment(note_id):
+    try:
+        user_id = request.current_user.id
+        body = request.get_json() or {}
+        content = (body.get('content') or '').strip()
+        parent_id = body.get('parent_id') or None
+        comment = note_service.add_comment(note_id, user_id, content, parent_id=parent_id)
+        return jsonify(comment), 201
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @note_bp.route('/<note_id>', methods=['PUT'])
 @require_auth
 def update_note(note_id):
