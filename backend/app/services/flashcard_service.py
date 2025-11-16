@@ -252,3 +252,24 @@ class FlashcardService:
             d['author'] = users_map.get(d.get('created_by'))
         return decks
 
+    def delete_deck(self, deck_id: str, user_id: str):
+        d = self.admin.table('flashcard_decks').select('id, created_by, session_id').eq('id', deck_id).single().execute()
+        if not d.data:
+            raise ValueError('Deck not found')
+        if d.data['created_by'] != user_id:
+            from app.utils.errors import UnauthorizedError
+            raise UnauthorizedError('You can only delete your own decks')
+        # Remove votes
+        try:
+            self.admin.table('upvotes').delete().eq('target_id', deck_id).eq('target_type', 'deck').execute()
+        except Exception:
+            pass
+        # Remove comments by anchor
+        try:
+            self.admin.table('comments').delete().eq('anchor', f'deck:{deck_id}').execute()
+        except Exception:
+            pass
+        # Delete deck (cascades to flashcards)
+        self.admin.table('flashcard_decks').delete().eq('id', deck_id).execute()
+        return True
+

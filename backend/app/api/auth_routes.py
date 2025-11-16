@@ -110,7 +110,7 @@ def upload_profile_picture():
 @require_auth
 def get_user_public(user_id):
     try:
-      user = auth_service.get_current_user(user_id)
+      user = auth_service.get_public_user(user_id)
       return jsonify(user), 200
     except NotFoundError as e:
       return jsonify({'error': e.message}), e.status_code

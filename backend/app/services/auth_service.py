@@ -230,6 +230,48 @@ class AuthService:
             }
         except Exception as e:
             raise NotFoundError(f"Failed to get user: {str(e)}")
+
+    def get_public_user(self, user_id: str):
+        """Fetch a user's public profile using service role (bypass RLS)."""
+        try:
+            admin_client = create_client(Config.SUPABASE_URL, Config.SUPABASE_SERVICE_KEY)
+            res = admin_client.table('users').select('*').eq('id', user_id).execute()
+            rows = res.data or []
+            if not rows:
+                # Fallback: fetch from auth.users and synthesize minimal profile
+                try:
+                    au = admin_client.auth.admin.get_user_by_id(user_id)
+                    if not au or not au.user:
+                        raise NotFoundError('User not found')
+                    meta = au.user.user_metadata or {}
+                    u = {
+                        'id': user_id,
+                        'email': au.user.email,
+                        'first_name': meta.get('first_name', ''),
+                        'last_name': meta.get('last_name', ''),
+                        'grade': None,
+                        'major': None,
+                        'profile_picture_url': None,
+                        'created_at': None,
+                    }
+                except Exception:
+                    raise NotFoundError('User not found')
+            else:
+                u = rows[0]
+            return {
+                'id': u['id'],
+                'email': u['email'],
+                'first_name': u.get('first_name',''),
+                'last_name': u.get('last_name',''),
+                'grade': u.get('grade'),
+                'major': u.get('major'),
+                'profile_picture_url': u.get('profile_picture_url'),
+                'created_at': u.get('created_at')
+            }
+        except NotFoundError:
+            raise
+        except Exception as e:
+            raise NotFoundError(f"Failed to get user: {str(e)}")
     
     def update_user_profile(self, user_id: str, data: dict):
         """Update user profile information."""

@@ -196,6 +196,16 @@ const ClassPage: React.FC = () => {
                     <div className="mt-2 inline-flex items-center gap-1 text-purple-700 text-sm">
                       <MountainIcon className="h-4 w-4" /> {deckVoteCounts[d.id] ?? 0}
                     </div>
+                    {user?.id && d.created_by === user.id && (
+                      <div className="mt-2 flex justify-end">
+                        <button
+                          onClick={async (e)=>{ e.stopPropagation(); try{ await flashcardsApi.deleteDeck(d.id); loadDecks(); } catch{} }}
+                          className="text-red-600 hover:text-red-700 text-sm font-semibold"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -168,3 +168,16 @@ def delete_deck_comment(deck_id, comment_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@flashcard_bp.route('/<deck_id>', methods=['DELETE'])
+@require_auth
+def delete_deck(deck_id):
+    try:
+        user_id = request.current_user.id
+        flashcard_service.delete_deck(deck_id, user_id)
+        return jsonify({'status': 'deleted'}), 200
+    except Exception as e:
+        msg = str(e)
+        if 'only delete your own' in msg.lower():
+            return jsonify({'error': 'Forbidden'}), 403
+        return jsonify({'error': msg}), 500
+

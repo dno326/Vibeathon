@@ -90,6 +90,10 @@ const DeckViewPage: React.FC = () => {
               )}
               <div className="text-sm text-gray-500">
                 {deck.cls ? <Link to={`/class/${deck.cls.id}`} className="hover:underline">{deck.cls.name}</Link> : 'Class'}
+                {' · '}
+                {deck.author ? (
+                  <Link to={`/user/${deck.author.id}`} className="hover:underline">{deck.author.first_name} {deck.author.last_name}</Link>
+                ) : 'Author'}
                 {' · '}{formatDate(deck.created_at)}
               </div>
               <h1 className="text-2xl font-bold text-gray-900">{deck.title}</h1>
