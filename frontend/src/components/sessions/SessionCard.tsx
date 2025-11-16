@@ -16,7 +16,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ title = 'Study Session', date
       role="button"
     >
       <div className="flex items-start justify-between">
-        <div>
+    <div>
           <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-700 transition-colors">
             {title}
           </h3>

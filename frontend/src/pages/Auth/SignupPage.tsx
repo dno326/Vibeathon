@@ -48,12 +48,12 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-violet-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-fuchsia-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-accent-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-primary-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="relative w-full max-w-md">
@@ -61,7 +61,7 @@ const SignupPage: React.FC = () => {
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 border border-white/20">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold text-[#4b2f23] mb-2">
               Join MountainMerge
             </h1>
             <p className="text-gray-600 text-sm font-medium">Start your collaborative study journey today</p>
@@ -88,7 +88,7 @@ const SignupPage: React.FC = () => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="First name"
                 />
               </div>
@@ -102,7 +102,7 @@ const SignupPage: React.FC = () => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
                   placeholder="Last name"
                 />
               </div>
@@ -119,7 +119,7 @@ const SignupPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
                 placeholder="you@example.com"
               />
             </div>
@@ -136,7 +136,7 @@ const SignupPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
                 placeholder="At least 6 characters"
               />
             </div>
@@ -153,7 +153,7 @@ const SignupPage: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                className="w-full px-4 py-3 bg-white/60 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-400 transition-all duration-200 text-gray-900 placeholder-gray-400"
                 placeholder="Confirm your password"
               />
             </div>
@@ -162,7 +162,7 @@ const SignupPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-6"
+              className="w-full py-3.5 px-6 bg-gradient-to-r from-primary-700 to-primary-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-6"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -184,7 +184,7 @@ const SignupPage: React.FC = () => {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-purple-600 hover:text-purple-700 transition-colors duration-200 hover:underline"
+                className="font-semibold text-primary-700 hover:text-primary-800 transition-colors duration-200 hover:underline"
               >
                 Log in
               </Link>

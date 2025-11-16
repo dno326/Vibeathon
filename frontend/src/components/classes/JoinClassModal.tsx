@@ -89,7 +89,7 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search classes by name"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
               disabled={loading}
           />
         </div>
@@ -130,7 +130,7 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
               type="button"
             onClick={handleJoin}
             disabled={loading || !selectedClassId}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-gradient-to-r from-primary-700 to-primary-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Joining...' : 'Join Selected'}
           </button>
@@ -141,14 +141,14 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
               value={newClassName}
               onChange={(e) => setNewClassName(e.target.value)}
               placeholder="Add new class name"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
               disabled={loading}
             />
             <button
               type="button"
               onClick={handleCreateAndJoin}
               disabled={loading || !newClassName.trim()}
-              className="px-4 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border-2 border-primary-700 text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating...' : 'Add Class'}
             </button>

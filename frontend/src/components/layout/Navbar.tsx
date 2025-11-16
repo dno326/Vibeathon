@@ -17,12 +17,18 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm sticky top-0 z-50">
+    <nav className="bg-[#f6ede5] text-[#4b2f23] border-b border-white/40 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+          <Link to="/dashboard" className="flex items-center gap-2 group">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-primary-700 to-accent-500 text-white shadow-soft group-hover:shadow-card transition-all duration-200">
+              {/* Mountain logo */}
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <path d="M3 18h18l-6.5-9.5-3 4-2-3L3 18z" />
+              </svg>
+            </span>
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight">
               MountainMerge
             </h1>
           </Link>
@@ -33,8 +39,8 @@ const Navbar: React.FC = () => {
               to="/classes"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 isActive('/classes')
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50'
+                  ? 'bg-white/60 text-[#4b2f23]'
+                  : 'text-[#4b2f23]/80 hover:bg-white/60'
               }`}
             >
               Classes
@@ -43,8 +49,8 @@ const Navbar: React.FC = () => {
               to="/notes"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 isActive('/notes')
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50'
+                  ? 'bg-white/60 text-[#4b2f23]'
+                  : 'text-[#4b2f23]/80 hover:bg-white/60'
               }`}
             >
               Notes
@@ -53,8 +59,8 @@ const Navbar: React.FC = () => {
               to="/flashcards"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 isActive('/flashcards')
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50'
+                  ? 'bg-white/60 text-[#4b2f23]'
+                  : 'text-[#4b2f23]/80 hover:bg-white/60'
               }`}
             >
               Flashcards
@@ -63,15 +69,15 @@ const Navbar: React.FC = () => {
               to="/profile"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 isActive('/profile')
-                  ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50'
+                  ? 'bg-white/60 text-[#4b2f23]'
+                  : 'text-[#4b2f23]/80 hover:bg-white/60'
               }`}
             >
               Profile
             </Link>
             <button
               onClick={handleLogout}
-              className="ml-4 px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+              className="ml-4 px-4 py-2 bg-[#4b2f23] text-white font-semibold rounded-lg hover:shadow-lg hover:brightness-110 active:scale-95 transition-all duration-200"
             >
               Log Out
             </button>

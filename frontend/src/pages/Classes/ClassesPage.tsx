@@ -47,9 +47,9 @@ const ClassesPage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-900">My Classes</h2>
             <p className="text-gray-600 mt-1">All the classes you’ve joined</p>
           </div>
-          <div className="flex gap-3">
+            <div className="flex gap-3">
             <Button variant="secondary" onClick={() => setShowJoinModal(true)}>
-              Browse & Join Classes
+                Browse & Join Classes
             </Button>
           </div>
         </div>

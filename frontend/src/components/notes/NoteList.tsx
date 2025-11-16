@@ -70,7 +70,7 @@ const NoteList: React.FC<NoteListProps> = ({ notes, currentUserId, onDelete, emp
                 />
               </div>
             )}
-            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-purple-700 inline-flex items-center gap-1 text-xs font-semibold shadow">
+            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-primary-700 inline-flex items-center gap-1 text-xs font-semibold shadow">
               <MountainIcon className="h-4 w-4" />
               <span>{voteCounts[note.id] ?? 0}</span>
             </div>

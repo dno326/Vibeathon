@@ -15,7 +15,7 @@ const DeckCard: React.FC<DeckCardProps> = ({ title = 'Untitled Deck', count = 0,
       role="button"
     >
       <div className="flex items-start justify-between">
-        <div>
+    <div>
           <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-700 transition-colors">
             {title}
           </h3>

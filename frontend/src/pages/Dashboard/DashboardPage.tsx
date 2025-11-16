@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { classApi } from '../../lib/classApi';
 import { Class } from '../../types/classes';
@@ -14,6 +14,7 @@ import Spinner from '../../components/common/Spinner';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [classes, setClasses] = useState<(Class & { user_role?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -43,24 +44,26 @@ const DashboardPage: React.FC = () => {
       <Navbar />
 
       <PageContainer>
-        {/* Welcome Section */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Welcome Back, {user?.first_name || 'there'}!
-            </h1>
-          <p className="text-lg text-gray-600">Here's a quick overview of your activity</p>
-        </div>
+        {/* Hero */}
+        <section className="mb-14 text-center pt-16 md:pt-24">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-[#4b2f23] mb-4">
+            Summit Collaboration
+          </h1>
+          <p className="max-w-3xl mx-auto text-base md:text-lg text-gray-600 leading-relaxed mb-20">
+            Reach new heights, together. Take a look at your classes, notes, and flashcards. 
+          </p>
+        </section>
 
         {/* Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <Link
             to="/notes"
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 p-8 border border-gray-100 hover:border-purple-300 group"
+            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 p-8 border border-gray-100 hover:border-primary-300 group"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
+              <div className="p-3 bg-primary-100 rounded-xl group-hover:bg-primary-200 transition-colors">
                 <svg
-                  className="w-8 h-8 text-purple-600"
+                  className="w-8 h-8 text-primary-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -74,7 +77,7 @@ const DashboardPage: React.FC = () => {
                 </svg>
               </div>
               <svg
-                className="w-5 h-5 text-gray-400 group-hover:text-purple-600 transform group-hover:translate-x-1 transition-all"
+                className="w-5 h-5 text-gray-400 group-hover:text-primary-600 transform group-hover:translate-x-1 transition-all"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -82,7 +85,7 @@ const DashboardPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary-700 transition-colors">
               My Notes
             </h3>
             <p className="text-gray-600">View and manage all your notes</p>
@@ -90,12 +93,12 @@ const DashboardPage: React.FC = () => {
 
           <Link
             to="/flashcards"
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 p-8 border border-gray-100 hover:border-purple-300 group"
+            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 p-8 border border-gray-100 hover:border-primary-300 group"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-violet-100 rounded-xl group-hover:bg-violet-200 transition-colors">
+              <div className="p-3 bg-accent-100 rounded-xl group-hover:bg-accent-200 transition-colors">
                 <svg
-                  className="w-8 h-8 text-violet-600"
+                  className="w-8 h-8 text-accent-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -109,7 +112,7 @@ const DashboardPage: React.FC = () => {
                 </svg>
               </div>
               <svg
-                className="w-5 h-5 text-gray-400 group-hover:text-violet-600 transform group-hover:translate-x-1 transition-all"
+                className="w-5 h-5 text-gray-400 group-hover:text-accent-600 transform group-hover:translate-x-1 transition-all"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -117,7 +120,7 @@ const DashboardPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
           </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-violet-600 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-accent-700 transition-colors">
               My Flashcards
             </h3>
             <p className="text-gray-600">Study with your flashcard decks</p>

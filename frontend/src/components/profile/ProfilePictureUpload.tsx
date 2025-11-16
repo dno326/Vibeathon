@@ -208,16 +208,16 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           <img
             src={preview}
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-4 border-purple-200 shadow-lg"
+            className="w-32 h-32 rounded-full object-cover border-4 border-primary-200 shadow-lg"
           />
         ) : (
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 shadow-lg">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-primary-200 shadow-lg">
             {initials}
           </div>
         )}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="absolute bottom-0 right-0 bg-purple-600 text-white rounded-full p-2 shadow-lg hover:bg-purple-700 transition-colors"
+          className="absolute bottom-0 right-0 bg-primary-700 text-white rounded-full p-2 shadow-lg hover:bg-primary-800 transition-colors"
           disabled={isUploading}
         >
           <svg
@@ -300,7 +300,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
               
               {/* Resize handle */}
               <div
-                className="absolute bg-white border-2 border-purple-600 rounded-full cursor-nwse-resize"
+                className="absolute bg-white border-2 border-primary-700 rounded-full cursor-nwse-resize"
                 style={{
                   left: cropPosition.x + cropSize - 10,
                   top: cropPosition.y + cropSize - 10,
@@ -320,7 +320,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
               </button>
               <button
                 onClick={performCrop}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+                className="px-4 py-2 bg-gradient-to-r from-primary-700 to-primary-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
                 disabled={isUploading || !imageLoaded}
               >
                 {isUploading ? 'Uploading...' : 'Save Picture'}

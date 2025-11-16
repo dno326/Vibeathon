@@ -57,7 +57,7 @@ const DeckCard: React.FC<{ deck: any, count?: number }>=({ deck, count })=>{
     <div role="button" onClick={()=>navigate(`/deck/${deck.id}`)} className="p-4 bg-white rounded-xl border shadow hover:shadow-md">
       <div className="text-base font-semibold text-gray-900">{deck.title}</div>
       <div className="text-sm text-gray-500 mt-1">{deck.cls?.name || 'Class'}</div>
-      <div className="mt-2 inline-flex items-center gap-1 text-purple-700 text-sm">
+      <div className="mt-2 inline-flex items-center gap-1 text-primary-700 text-sm">
         <MountainIcon className="h-4 w-4" /> {count ?? 0}
       </div>
       <div className="mt-2 flex justify-end">

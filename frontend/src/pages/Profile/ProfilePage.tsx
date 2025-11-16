@@ -199,7 +199,7 @@ const ProfilePage: React.FC = () => {
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all bg-white text-gray-900"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all bg-white text-gray-900"
                 >
                   <option value="">Select grade...</option>
                   <option value="Freshman">Freshman</option>

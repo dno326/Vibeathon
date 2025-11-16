@@ -127,7 +127,7 @@ const NoteViewPage: React.FC = () => {
       </div>
       <div className="text-gray-800 text-sm whitespace-pre-wrap">{node.content}</div>
       <div className="mt-2">
-        <button type="button" className="text-xs text-purple-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); }}>
+        <button type="button" className="text-xs text-primary-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); }}>
           Reply
         </button>
         {user?.id && node.user_id === user.id && (
@@ -154,14 +154,14 @@ const NoteViewPage: React.FC = () => {
             onChange={(e) => { replyDraftRef.current[node.id] = e.target.value; }}
             placeholder="Write a reply..."
             rows={3}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-y"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none resize-y"
             disabled={submittingComment}
           />
           <button
             type="button"
             onClick={() => submitReply(node.id)}
             disabled={submittingComment}
-            className="px-3 py-2 bg-purple-600 text-white rounded-lg font-semibold disabled:opacity-50"
+            className="px-3 py-2 bg-primary-700 text-white rounded-lg font-semibold disabled:opacity-50"
           >
             Reply
           </button>

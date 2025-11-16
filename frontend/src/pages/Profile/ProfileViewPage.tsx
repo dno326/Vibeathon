@@ -67,7 +67,7 @@ const ProfileViewPage: React.FC = () => {
                   className="h-16 w-16 rounded-full object-cover border"
                 />
               ) : (
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-600 to-violet-600 text-white flex items-center justify-center text-xl font-bold">
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-700 to-accent-500 text-white flex items-center justify-center text-xl font-bold">
                   {getInitials(user.first_name, user.last_name)}
                 </div>
               )}

@@ -104,7 +104,7 @@ const DeckViewPage: React.FC = () => {
             {votes && (
               <Button onClick={toggleVote} variant={votes.user_has_voted ? 'primary' : 'secondary'}>
                 <span className="inline-flex items-center gap-2">
-                  <MountainIcon filled={votes.user_has_voted} className="h-4 w-4" /> {votes.count}
+                <MountainIcon filled={votes.user_has_voted} className="h-4 w-4" /> {votes.count}
                 </span>
               </Button>
             )}

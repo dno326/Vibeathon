@@ -83,9 +83,9 @@ const ClassPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
           <p className="mt-4 text-gray-600">Loading class...</p>
         </div>
       </div>
@@ -94,13 +94,13 @@ const ClassPage: React.FC = () => {
 
   if (error || !classData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
           <p className="text-gray-600 mb-6">{error || 'Class not found'}</p>
           <button
             onClick={() => navigate('/dashboard')}
-            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+            className="px-6 py-2 bg-gradient-to-r from-primary-700 to-primary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
           >
             Back to Dashboard
           </button>
@@ -110,7 +110,7 @@ const ClassPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -124,7 +124,7 @@ const ClassPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {classData.name}
               </h1>
             </div>

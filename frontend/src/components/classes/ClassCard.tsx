@@ -36,7 +36,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
         <div className="flex items-center text-primary-600 font-semibold text-sm group-hover:text-primary-700">
           View Class
           <svg 
-            className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform"
+            className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
