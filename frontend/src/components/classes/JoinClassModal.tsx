@@ -43,8 +43,8 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
   const handleJoin = async () => {
     if (!selectedClassId) return;
     try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
       await classApi.joinClassById(selectedClassId);
       onSuccess();
       onClose();
@@ -82,15 +82,15 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
       >
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Find your class</h2>
         <p className="text-gray-600 mb-4">Search and select a class to join. If you don't see it, add a new one.</p>
-
-        <div className="mb-4">
-          <input
-            type="text"
+        
+          <div className="mb-4">
+            <input
+              type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search classes by name"
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-            disabled={loading}
+              disabled={loading}
           />
         </div>
 
@@ -117,17 +117,17 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose, onSucc
               ))}
             </ul>
           )}
-        </div>
-
-        {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            {error}
           </div>
-        )}
+
+          {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              {error}
+            </div>
+          )}
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button
-            type="button"
+            <button
+              type="button"
             onClick={handleJoin}
             disabled={loading || !selectedClassId}
             className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"

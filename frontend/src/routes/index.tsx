@@ -7,11 +7,11 @@ import DashboardPage from '../pages/Dashboard/DashboardPage';
 import ClassesPage from '../pages/Classes/ClassesPage';
 import ClassPage from '../pages/Class/ClassPage';
 import SessionPage from '../pages/Session/SessionPage';
-import DeckPage from '../pages/Deck/DeckPage';
+import DeckViewPage from '../pages/Flashcards/DeckViewPage';
 import StudyModePage from '../pages/Study/StudyModePage';
 import ProfilePage from '../pages/Profile/ProfilePage';
 import NotesPage from '../pages/Notes/NotesPage';
-import FlashcardsPage from '../pages/Flashcards/FlashcardsPage';
+import MyFlashcardsPage from '../pages/Flashcards/MyFlashcardsPage';
 import ProfileViewPage from '../pages/Profile/ProfileViewPage';
 import NoteViewPage from '../pages/Notes/NoteViewPage';
 
@@ -77,7 +77,7 @@ export const routes = (
       path="/deck/:deckId"
       element={
         <ProtectedRoute>
-          <DeckPage />
+          <DeckViewPage />
         </ProtectedRoute>
       }
     />
@@ -117,7 +117,7 @@ export const routes = (
       path="/flashcards"
       element={
         <ProtectedRoute>
-          <FlashcardsPage />
+          <MyFlashcardsPage />
         </ProtectedRoute>
       }
     />

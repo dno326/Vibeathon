@@ -230,7 +230,7 @@ class NoteService:
         if not note_res.data:
             raise ValidationError("Failed to create note")
         return note_res.data[0]
-
+    
     def get_note(self, note_id: str, user_id: str):
         """Get a specific note."""
         # TODO: Implement get note

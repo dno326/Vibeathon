@@ -6,6 +6,8 @@ import { formatDate } from '../../utils/formatDate';
 import { notesApi } from '../../lib/notesApi';
 import NoteList from '../../components/notes/NoteList';
 import { useAuth } from '../../hooks/useAuth';
+import { flashcardsApi } from '../../lib/flashcardsApi';
+import { useNavigate as useNav } from 'react-router-dom';
 
 const ClassPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -15,11 +17,13 @@ const ClassPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string; author?: any }>>([]);
+  const [classDecks, setClassDecks] = useState<Array<any>>([]);
 
   useEffect(() => {
     if (classId) {
       loadClass();
       loadNotes();
+      loadDecks();
     }
   }, [classId]);
 
@@ -46,6 +50,14 @@ const ClassPage: React.FC = () => {
     } catch (e) {
       // ignore
     }
+  };
+
+  const loadDecks = async () => {
+    if (!classId) return;
+    try {
+      const decks = await flashcardsApi.listClassDecks(classId);
+      setClassDecks(decks);
+    } catch {}
   };
 
   if (loading) {
@@ -142,13 +154,23 @@ const ClassPage: React.FC = () => {
           {/* Decks section */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Flashcard Decks</h2>
-            <div className="text-center py-12 text-gray-500">
-              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <p>No decks yet</p>
-              <p className="text-sm mt-2">Flashcard decks will appear here</p>
-            </div>
+            {classDecks.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <p>No decks yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {classDecks.map((d) => (
+                  <div key={d.id} className="p-4 bg-white rounded-xl border shadow hover:shadow-md cursor-pointer" onClick={()=>navigate(`/deck/${d.id}`)}>
+                    <div className="text-base font-semibold text-gray-900">{d.title}</div>
+                    <div className="text-sm text-gray-500 mt-1">{d.cls?.name || 'Class'}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

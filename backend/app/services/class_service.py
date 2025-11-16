@@ -38,7 +38,7 @@ class ClassService:
             return class_data
         except Exception as e:
             raise ValidationError(f"Failed to create class: {str(e)}")
-    
+            
     def list_all_classes(self):
         """List all classes (public catalog)."""
         try:
