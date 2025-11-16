@@ -13,6 +13,7 @@ import ProfilePage from '../pages/Profile/ProfilePage';
 import NotesPage from '../pages/Notes/NotesPage';
 import FlashcardsPage from '../pages/Flashcards/FlashcardsPage';
 import ProfileViewPage from '../pages/Profile/ProfileViewPage';
+import NoteViewPage from '../pages/Notes/NoteViewPage';
 
 export const routes = (
   <Routes>
@@ -53,6 +54,14 @@ export const routes = (
       element={
         <ProtectedRoute>
           <ClassPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/note/:noteId"
+      element={
+        <ProtectedRoute>
+          <NoteViewPage />
         </ProtectedRoute>
       }
     />

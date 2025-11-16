@@ -9,7 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 const NotesPage: React.FC = () => {
   const { user } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
-  const [notes, setNotes] = useState<Array<{ id: string; content: string; created_at: string; public: boolean; author?: any }>>([]);
+  const [notes, setNotes] = useState<Array<{ id: string; content: string; created_at: string; public: boolean; author?: any; cls?: any }>>([]);
   const [loading, setLoading] = useState(true);
 
   const loadNotes = async () => {
@@ -30,6 +30,13 @@ const NotesPage: React.FC = () => {
 
   const handleCreated = () => {
     loadNotes();
+  };
+
+  const handleDelete = async (noteId: string) => {
+    try {
+      await notesApi.deleteNote(noteId);
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    } catch (e) {}
   };
 
   return (
@@ -63,7 +70,7 @@ const NotesPage: React.FC = () => {
             onAction={() => setShowCreate(true)}
           />
         ) : (
-          <NoteList notes={notes as any} currentUserId={user?.id} />
+          <NoteList notes={notes as any} currentUserId={user?.id} onDelete={handleDelete} />
         )}
       </div>
 
