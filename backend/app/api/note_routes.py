@@ -157,6 +157,16 @@ def list_class_notes(class_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@note_bp.route('/user/<user_id>', methods=['GET'])
+@require_auth
+def list_user_public_notes(user_id):
+    try:
+        viewer_id = request.current_user.id
+        notes = note_service.list_public_notes_by_user(user_id, viewer_id)
+        return jsonify({'notes': notes}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @note_bp.route('/<note_id>', methods=['DELETE'])
 @require_auth
 def delete_note(note_id):

@@ -426,3 +426,28 @@ class NoteService:
         self.admin.table('note_comments').delete().eq('id', comment_id).execute()
         return True
 
+    def list_public_notes_by_user(self, target_user_id: str, viewer_user_id: str):
+        """List notes created by target user that are public and visible to viewer (member of class)."""
+        # Get notes by creator
+        res = self.admin.table('notes').select('*').eq('created_by', target_user_id).execute()
+        notes = res.data or []
+        if not notes:
+            return []
+        # Attach sessions and classes
+        notes = self._attach_classes_via_sessions(notes)
+        # Filter by public flag and viewer membership to the class
+        visible = []
+        for n in notes:
+            # public flag check (treat missing as True)
+            if 'public' in n and n['public'] is False:
+                continue
+            cls = n.get('cls')
+            if not cls or not cls.get('id'):
+                continue
+            mem = self.admin.table('class_members').select('user_id').eq('class_id', cls['id']).eq('user_id', viewer_user_id).execute()
+            if mem.data:
+                visible.append(n)
+        # Sort newest first
+        visible.sort(key=lambda x: x.get('created_at') or '', reverse=True)
+        return self._attach_authors(visible)
+

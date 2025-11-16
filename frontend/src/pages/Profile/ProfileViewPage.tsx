@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import apiClient from '../../lib/apiClient';
+import { notesApi } from '../../lib/notesApi';
+import NoteList from '../../components/notes/NoteList';
 
 function getInitials(first?: string, last?: string) {
   const f = (first || '').trim();
@@ -15,6 +17,8 @@ const ProfileViewPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [publicNotes, setPublicNotes] = useState<any[]>([]);
+  const [decks, setDecks] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -22,6 +26,12 @@ const ProfileViewPage: React.FC = () => {
         setLoading(true);
         const res = await apiClient.get(`/api/auth/user/${userId}`);
         setUser(res.data);
+        const notes = await notesApi.getUserPublicNotes(userId!);
+        setPublicNotes(notes);
+        try {
+          const dres = await apiClient.get(`/api/decks/user/${userId}`);
+          setDecks(dres.data.decks || []);
+        } catch {}
       } catch (e) {
         setUser(null);
       } finally {
@@ -73,6 +83,33 @@ const ProfileViewPage: React.FC = () => {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Major</p>
                   <p className="text-gray-800 font-semibold">{user.major}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Public Notes */}
+            <div className="mt-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-3">Public Notes</h2>
+              {publicNotes.length === 0 ? (
+                <div className="text-sm text-gray-500">No public notes to show.</div>
+              ) : (
+                <NoteList notes={publicNotes as any} emptyText="No public notes" backTo={`/user/${userId}`} />
+              )}
+            </div>
+
+            {/* Public Flashcard Decks */}
+            <div className="mt-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-3">Public Flashcard Decks</h2>
+              {decks.length === 0 ? (
+                <div className="text-sm text-gray-500">No public decks to show.</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {decks.map((d) => (
+                    <div key={d.id} className="p-4 bg-white rounded-xl border shadow-sm">
+                      <div className="text-base font-semibold text-gray-900">{d.title}</div>
+                      <div className="text-sm text-gray-500 mt-1">{d.cls?.name || 'Class'}</div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
