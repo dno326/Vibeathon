@@ -39,7 +39,7 @@ const NoteViewPage: React.FC = () => {
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [replyOpenFor, setReplyOpenFor] = useState<string | null>(null);
-  const [replyTextById, setReplyTextById] = useState<Record<string, string>>({});
+  const replyDraftRef = React.useRef<Record<string, string>>({});
   const { user } = useAuth();
 
   useEffect(() => {
@@ -93,12 +93,12 @@ const NoteViewPage: React.FC = () => {
   };
 
   const submitReply = async (parentId: string) => {
-    const text = (replyTextById[parentId] || '').trim();
+    const text = (replyDraftRef.current[parentId] || '').trim();
     if (!noteId || !text) return;
     try {
       setSubmittingComment(true);
       await notesApi.addComment(noteId, text, parentId);
-      setReplyTextById((m) => ({ ...m, [parentId]: '' }));
+      replyDraftRef.current[parentId] = '';
       setReplyOpenFor(null);
       const updated = await notesApi.getComments(noteId);
       setComments(updated);
@@ -124,7 +124,7 @@ const NoteViewPage: React.FC = () => {
       </div>
       <div className="text-gray-800 text-sm whitespace-pre-wrap">{node.content}</div>
       <div className="mt-2">
-        <button type="button" className="text-xs text-purple-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); setReplyTextById((m) => ({ ...m, [node.id]: m[node.id] || '' })); }}>
+        <button type="button" className="text-xs text-purple-700 font-semibold" onClick={() => { setReplyOpenFor(node.id); }}>
           Reply
         </button>
         {user?.id && node.user_id === user.id && (
@@ -147,8 +147,8 @@ const NoteViewPage: React.FC = () => {
       {replyOpenFor === node.id && (
         <div className="mt-2 flex gap-2">
           <textarea
-            value={replyTextById[node.id] || ''}
-            onChange={(e) => setReplyTextById((m) => ({ ...m, [node.id]: e.target.value }))}
+            defaultValue={replyDraftRef.current[node.id] || ''}
+            onChange={(e) => { replyDraftRef.current[node.id] = e.target.value; }}
             placeholder="Write a reply..."
             rows={3}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-y"
@@ -157,7 +157,7 @@ const NoteViewPage: React.FC = () => {
           <button
             type="button"
             onClick={() => submitReply(node.id)}
-            disabled={submittingComment || !(replyTextById[node.id] || '').trim()}
+            disabled={submittingComment}
             className="px-3 py-2 bg-purple-600 text-white rounded-lg font-semibold disabled:opacity-50"
           >
             Reply
