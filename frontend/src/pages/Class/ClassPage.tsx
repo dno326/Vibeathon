@@ -151,7 +151,7 @@ const ClassPage: React.FC = () => {
       {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Class info card */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-card p-6 mb-8 border border-white/60">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <p className="text-sm text-gray-500 mb-1">Class Name</p>
@@ -167,13 +167,13 @@ const ClassPage: React.FC = () => {
         {/* Notes and Decks */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Notes section */}
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-card p-6 border border-white/60">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Notes</h2>
             <NoteList notes={classNotes as any} emptyText="No public notes yet" currentUserId={user?.id} />
           </div>
 
           {/* Decks section */}
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-card p-6 border border-white/60">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Flashcard Decks</h2>
             {classDecks.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -185,7 +185,11 @@ const ClassPage: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {classDecks.map((d) => (
-                  <div key={d.id} className="p-4 bg-white rounded-xl border shadow hover:shadow-md cursor-pointer" onClick={()=>navigate(`/deck/${d.id}`)}>
+                  <div
+                    key={d.id}
+                    className="p-4 bg-white rounded-2xl border border-white/60 shadow-card hover:shadow-float hover:border-primary-300 cursor-pointer transition-all duration-250 ease-out-soft"
+                    onClick={()=>navigate(`/deck/${d.id}`)}
+                  >
                     <div className="text-base font-semibold text-gray-900">{d.title}</div>
                     <div className="text-sm text-gray-500 mt-1">{d.cls?.name || 'Class'}</div>
                     {d.author && (
@@ -193,7 +197,7 @@ const ClassPage: React.FC = () => {
                         Added by {d.author.first_name} {d.author.last_name}
                       </div>
                     )}
-                    <div className="mt-2 inline-flex items-center gap-1 text-purple-700 text-sm">
+                    <div className="mt-2 inline-flex items-center gap-1 text-primary-700 text-sm">
                       <MountainIcon className="h-4 w-4" /> {deckVoteCounts[d.id] ?? 0}
                     </div>
                     {user?.id && d.created_by === user.id && (

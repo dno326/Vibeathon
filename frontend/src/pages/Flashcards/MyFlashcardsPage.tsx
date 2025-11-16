@@ -3,6 +3,11 @@ import Navbar from '../../components/layout/Navbar';
 import { flashcardsApi } from '../../lib/flashcardsApi';
 import { classApi } from '../../lib/classApi';
 import { useNavigate } from 'react-router-dom';
+import PageContainer from '../../components/layout/PageContainer';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import Modal from '../../components/common/Modal';
+import EmptyState from '../../components/common/EmptyState';
 
 const MountainIcon: React.FC<{ className?: string }>=({ className })=> (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -19,7 +24,6 @@ const UploadDeckModal: React.FC<{ isOpen: boolean; onClose: () => void; onCreate
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(()=>{ if(isOpen){ classApi.getAllClasses().then(setClasses).catch(()=>{});} },[isOpen]);
-  if(!isOpen) return null;
   const submit = async (e: React.FormEvent)=>{
     e.preventDefault();
     if(files.length===0 || !classId){ setError('Select files and class'); return; }
@@ -28,25 +32,22 @@ const UploadDeckModal: React.FC<{ isOpen: boolean; onClose: () => void; onCreate
     finally{ setLoading(false); }
   };
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6" onClick={(e)=>e.stopPropagation()}>
-        <h2 className="text-xl font-bold mb-4">Create Deck from PDFs</h2>
-        <form onSubmit={submit} className="space-y-3">
-          <input type="text" placeholder="Title (optional)" value={title} onChange={(e)=>setTitle(e.target.value)} className="w-full px-3 py-2 border rounded-lg"/>
-          <input type="file" accept="application/pdf" multiple onChange={(e)=> setFiles(Array.from(e.target.files || []))} className="w-full"/>
-          <select value={classId} onChange={(e)=>setClassId(e.target.value)} className="w-full px-3 py-2 border rounded-lg">
-            <option value="">Select class…</option>
-            {classes.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={isPublic} onChange={(e)=>setIsPublic(e.target.checked)} /> Public (visible to class)</label>
-          {error && <div className="text-red-600 text-sm">{error}</div>}
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-3 py-2 border rounded-lg">Cancel</button>
-            <button type="submit" disabled={loading || files.length===0 || !classId} className="px-3 py-2 bg-purple-600 text-white rounded-lg">{loading?'Creating…':'Create'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="Create Deck from PDFs">
+      <form onSubmit={submit} className="space-y-4">
+        <Input type="text" placeholder="Title (optional)" value={title} onChange={(e)=>setTitle(e.target.value)} />
+        <input type="file" accept="application/pdf" multiple onChange={(e)=> setFiles(Array.from(e.target.files || []))} className="w-full" />
+        <select value={classId} onChange={(e)=>setClassId(e.target.value)} className="w-full rounded-xl border border-gray-300 px-4 py-3 shadow-soft focus:border-primary-400 focus:ring-2 focus:ring-primary-200 outline-none transition-all">
+          <option value="">Select class…</option>
+          {classes.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={isPublic} onChange={(e)=>setIsPublic(e.target.checked)} /> Public (visible to class)</label>
+        {error && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">{error}</div>}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" disabled={loading || files.length===0 || !classId}>{loading?'Creating…':'Create'}</Button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 
@@ -89,21 +90,21 @@ const MyFlashcardsPage: React.FC = () => {
     return ()=>{ cancelled=true; };
   },[decks]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <PageContainer>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">My Flashcards</h1>
-          <button onClick={()=>setOpen(true)} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl">Create Deck</button>
+          <h1 className="text-3xl font-bold text-gray-900">My Flashcards</h1>
+          <Button onClick={()=>setOpen(true)}>Create Deck</Button>
         </div>
         {decks.length===0 ? (
-          <div className="text-gray-500">No decks yet.</div>
+          <EmptyState title="No decks yet" message="Create a new deck from PDFs to get started." actionLabel="Create Deck" onAction={()=>setOpen(true)} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {decks.map(d => <DeckCard key={d.id} deck={d} count={voteCounts[d.id]} />)}
           </div>
         )}
-      </div>
+      </PageContainer>
       <UploadDeckModal isOpen={open} onClose={()=>setOpen(false)} onCreated={refresh} />
     </div>
   );

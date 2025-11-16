@@ -4,6 +4,8 @@ import Navbar from '../../components/layout/Navbar';
 import apiClient from '../../lib/apiClient';
 import { notesApi } from '../../lib/notesApi';
 import NoteList from '../../components/notes/NoteList';
+import PageContainer from '../../components/layout/PageContainer';
+import Spinner from '../../components/common/Spinner';
 
 function getInitials(first?: string, last?: string) {
   const f = (first || '').trim();
@@ -43,18 +45,15 @@ const ProfileViewPage: React.FC = () => {
   }, [userId]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <PageContainer>
         {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            <p className="mt-4 text-gray-600">Loading profile...</p>
-          </div>
+          <div className="flex items-center justify-center py-16"><Spinner /><p className="ml-3 text-gray-600">Loading profile...</p></div>
         ) : !user ? (
           <div className="text-center py-12 text-gray-600">User not found</div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="bg-white rounded-2xl shadow-card border border-white/60 p-8">
             <button onClick={()=>navigate(-1)} className="mb-4 p-2 hover:bg-gray-100 rounded-lg" aria-label="Go back">
               <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -68,12 +67,12 @@ const ProfileViewPage: React.FC = () => {
                   className="h-16 w-16 rounded-full object-cover border"
                 />
               ) : (
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-600 to-violet-600 text-white flex items-center justify-center text-xl font-bold">
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-600 to-violet-600 text-white flex items-center justify-center text-xl font-bold">
                   {getInitials(user.first_name, user.last_name)}
                 </div>
               )}
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 leading-tight">{user.first_name} {user.last_name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 leading-tight">{user.first_name} {user.last_name}</h1>
                 <p className="text-gray-600">{user.email}</p>
               </div>
             </div>
@@ -95,7 +94,7 @@ const ProfileViewPage: React.FC = () => {
 
             {/* Public Notes */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-3">Public Notes</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Public Notes</h2>
               {publicNotes.length === 0 ? (
                 <div className="text-sm text-gray-500">No public notes to show.</div>
               ) : (
@@ -105,13 +104,13 @@ const ProfileViewPage: React.FC = () => {
 
             {/* Public Flashcard Decks */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-3">Public Flashcard Decks</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Public Flashcard Decks</h2>
               {decks.length === 0 ? (
                 <div className="text-sm text-gray-500">No public decks to show.</div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {decks.map((d) => (
-                    <div key={d.id} className="p-4 bg-white rounded-xl border shadow-sm">
+                    <div key={d.id} className="p-4 bg-white rounded-2xl border border-white/60 shadow-card">
                       <div className="text-base font-semibold text-gray-900">{d.title}</div>
                       <div className="text-sm text-gray-500 mt-1">{d.cls?.name || 'Class'}</div>
                     </div>
@@ -121,7 +120,7 @@ const ProfileViewPage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </PageContainer>
     </div>
   );
 };

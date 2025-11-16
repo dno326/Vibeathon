@@ -17,10 +17,10 @@ const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
   return (
     <div
       onClick={handleClick}
-      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-200 p-6 cursor-pointer border border-gray-100 hover:border-purple-300 group"
+      className="bg-white rounded-2xl shadow-card hover:shadow-float transition-all duration-250 ease-out-soft p-6 cursor-pointer border border-white/60 hover:border-primary-300 group"
     >
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors">
+      <div className="flex items-start justify-between mb-5">
+        <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-700 transition-colors">
           {classData.name}
         </h3>
       </div>
@@ -32,11 +32,11 @@ const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <div className="flex items-center text-purple-600 font-semibold text-sm group-hover:text-purple-700">
+      <div className="mt-5 pt-4 border-t border-gray-100">
+        <div className="flex items-center text-primary-600 font-semibold text-sm group-hover:text-primary-700">
           View Class
           <svg 
-            className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" 
+            className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform"
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"

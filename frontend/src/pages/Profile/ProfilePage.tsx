@@ -6,6 +6,7 @@ import Navbar from '../../components/layout/Navbar';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import ProfilePictureUpload from '../../components/profile/ProfilePictureUpload';
+import PageContainer from '../../components/layout/PageContainer';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser, refreshUser } = useAuth();
@@ -109,12 +110,12 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen">
       <Navbar />
       
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile Settings</h1>
+      <PageContainer>
+        <div className="bg-white rounded-2xl shadow-card border border-white/60 p-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
           <p className="text-gray-600 mb-8">Update your personal information</p>
 
           {message && (
@@ -228,14 +229,13 @@ const ProfilePage: React.FC = () => {
               <Button
                 type="submit"
                 disabled={saving}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </form>
         </div>
-      </div>
+      </PageContainer>
     </div>
   );
 };

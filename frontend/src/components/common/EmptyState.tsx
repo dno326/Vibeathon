@@ -9,11 +9,12 @@ interface EmptyStateProps {
 
 const EmptyState: React.FC<EmptyStateProps> = ({ title, message, actionLabel, onAction }) => {
   return (
-    <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
+    // Design intent: Friendly, inviting empty state with icon, hierarchy, and clear CTA
+    <div className="text-center py-16 bg-white/90 backdrop-blur rounded-2xl shadow-card border border-white/60">
       <div className="max-w-md mx-auto">
         <div className="mb-6">
           <svg
-            className="mx-auto h-16 w-16 text-gray-400"
+            className="mx-auto h-16 w-16 text-primary-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -27,13 +28,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({ title, message, actionLabel, on
           </svg>
         </div>
         {title && (
-          <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">{title}</h3>
         )}
-        <p className="text-gray-600 mb-6">{message}</p>
+        <p className="text-gray-600 mb-6 leading-relaxed">{message}</p>
       {actionLabel && onAction && (
           <button
             onClick={onAction}
-            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-violet-600 text-white font-semibold rounded-2xl shadow-soft hover:shadow-card hover:brightness-105 active:scale-95 transition-all"
           >
             {actionLabel}
           </button>
