@@ -116,3 +116,24 @@ class ClassService:
             raise
         except Exception as e:
             raise ValidationError(f"Failed to get class: {str(e)}")
+
+    def leave_class(self, class_id: str, user_id: str):
+        """Remove the user's membership from a class. If the class becomes empty, delete it."""
+        if not class_id:
+            raise ValidationError("Class ID is required")
+        if not user_id:
+            raise ValidationError("User ID is required")
+        try:
+            # Ensure membership exists
+            membership = self.admin_client.table('class_members').select('user_id').eq('class_id', class_id).eq('user_id', user_id).execute()
+            if not membership.data:
+                raise NotFoundError("You are not a member of this class")
+ 
+            # Remove membership
+            self.admin_client.table('class_members').delete().eq('class_id', class_id).eq('user_id', user_id).execute()
+            # Do not delete the class even if it becomes empty.
+            return {'status': 'left'}
+        except NotFoundError:
+            raise
+        except Exception as e:
+            raise ValidationError(f"Failed to leave class: {str(e)}")

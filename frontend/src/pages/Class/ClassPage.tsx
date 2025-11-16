@@ -95,6 +95,22 @@ const ClassPage: React.FC = () => {
                 {classData.name}
               </h1>
             </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={async () => {
+                  if (!classId) return;
+                  try {
+                    await classApi.leaveClass(classId);
+                    navigate('/classes');
+                  } catch (e) {
+                    // silently ignore for now
+                  }
+                }}
+                className="px-3 py-2 text-sm font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50"
+              >
+                Leave Class
+              </button>
+            </div>
           </div>
         </div>
       </div>

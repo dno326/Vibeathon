@@ -95,3 +95,18 @@ def get_class(class_id):
         return jsonify({'error': e.message}), e.status_code
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@class_bp.route('/<class_id>/leave', methods=['DELETE'])
+@require_auth
+def leave_class(class_id):
+    """Leave a class (remove current user's membership). If no members remain, class is deleted."""
+    try:
+        user_id = request.current_user.id
+        result = class_service.leave_class(class_id, user_id)
+        return jsonify(result), 200
+    except NotFoundError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except ValidationError as e:
+        return jsonify({'error': e.message}), e.status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
