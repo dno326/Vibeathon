@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { classApi } from '../../lib/classApi';
 import { Class } from '../../types/classes';
 import { formatDate } from '../../utils/formatDate';
+import { notesApi } from '../../lib/notesApi';
+import NoteList from '../../components/notes/NoteList';
 
 const ClassPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -10,10 +12,12 @@ const ClassPage: React.FC = () => {
   const [classData, setClassData] = useState<(Class & { user_role?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string }>>([]);
 
   useEffect(() => {
     if (classId) {
       loadClass();
+      loadNotes();
     }
   }, [classId]);
 
@@ -29,6 +33,16 @@ const ClassPage: React.FC = () => {
       setError(err.response?.data?.error || 'Failed to load class');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadNotes = async () => {
+    if (!classId) return;
+    try {
+      const notes = await notesApi.getClassNotes(classId);
+      setClassNotes(notes);
+    } catch (e) {
+      // ignore
     }
   };
 
@@ -99,18 +113,12 @@ const ClassPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Placeholder for future content */}
+        {/* Notes and Decks */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Notes section */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Notes</h2>
-            <div className="text-center py-12 text-gray-500">
-              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p>No notes yet</p>
-              <p className="text-sm mt-2">Create or upload notes to see them here</p>
-            </div>
+            <NoteList notes={classNotes as any} emptyText="No public notes yet" />
           </div>
 
           {/* Decks section */}
