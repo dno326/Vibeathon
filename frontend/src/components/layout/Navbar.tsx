@@ -66,6 +66,16 @@ const Navbar: React.FC = () => {
               Flashcards
             </Link>
             <Link
+              to="/study-groups"
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/study-groups')
+                  ? 'bg-white/60 text-[#4b2f23]'
+                  : 'text-[#4b2f23]/80 hover:bg-white/60'
+              }`}
+            >
+              Study Groups
+            </Link>
+            <Link
               to="/profile"
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 isActive('/profile')

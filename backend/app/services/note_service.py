@@ -263,6 +263,19 @@ class NoteService:
                     'first_name': arows[0].get('first_name', ''),
                     'last_name': arows[0].get('last_name', ''),
                 }
+            else:
+                # Fallback to auth.users metadata if profile row missing
+                try:
+                    au = self.admin.auth.admin.get_user_by_id(note['created_by'])
+                    if au and au.user:
+                        meta = au.user.user_metadata or {}
+                        note['author'] = {
+                            'id': au.user.id,
+                            'first_name': meta.get('first_name', '') or '',
+                            'last_name': meta.get('last_name', '') or ''
+                        }
+                except Exception:
+                    pass
         except Exception:
             pass
         # class via session
@@ -281,13 +294,15 @@ class NoteService:
         return note
 
     def delete_note(self, note_id: str, user_id: str):
-        res = self.admin.table('notes').select('id, created_by, pdf_url').eq('id', note_id).single().execute()
-        if not res.data:
+        # Avoid `.single()` which throws when 0 rows
+        res = self.admin.table('notes').select('id, created_by, pdf_url').eq('id', note_id).execute()
+        row = (res.data or [])
+        if not row:
             raise NotFoundError("Note not found")
-        if res.data['created_by'] != user_id:
+        if row[0]['created_by'] != user_id:
             raise UnauthorizedError("You can only delete your own notes")
         # Optionally delete PDF from storage
-        pdf_url = res.data.get('pdf_url')
+        pdf_url = row[0].get('pdf_url')
         if pdf_url and '/notes-pdfs/' in pdf_url:
             try:
                 key = pdf_url.split('/notes-pdfs/')[1]
@@ -304,12 +319,28 @@ class NoteService:
         authors_map = {}
         if user_ids:
             users_res = self.admin.table('users').select('id, first_name, last_name').in_('id', user_ids).execute()
+            found_ids = set()
             for u in (users_res.data or []):
                 authors_map[u['id']] = {
                     'id': u['id'],
                     'first_name': u.get('first_name', ''),
                     'last_name': u.get('last_name', ''),
                 }
+                found_ids.add(u['id'])
+            # Fallback for missing: pull from auth.users metadata
+            missing = [uid for uid in user_ids if uid not in found_ids]
+            for uid in missing:
+                try:
+                    au = self.admin.auth.admin.get_user_by_id(uid)
+                    if au and au.user:
+                        meta = au.user.user_metadata or {}
+                        authors_map[uid] = {
+                            'id': au.user.id,
+                            'first_name': meta.get('first_name', '') or '',
+                            'last_name': meta.get('last_name', '') or ''
+                        }
+                except Exception:
+                    continue
         for n in notes:
             n['author'] = authors_map.get(n.get('created_by'))
         return notes
@@ -369,10 +400,12 @@ class NoteService:
                 pass
 
             notes = self._attach_authors(notes)
-            cls_res = self.admin.table('classes').select('id, name').eq('id', class_id).single().execute()
+            # Avoid `.single()` to prevent PGRST116 when class row is missing
+            cls_res = self.admin.table('classes').select('id, name').eq('id', class_id).execute()
             cls = None
-            if cls_res.data:
-                cls = {'id': cls_res.data['id'], 'name': cls_res.data.get('name', '')}
+            rows = cls_res.data or []
+            if rows:
+                cls = {'id': rows[0]['id'], 'name': rows[0].get('name', '')}
             for n in notes:
                 n['cls'] = cls
             return notes
@@ -406,10 +439,12 @@ class NoteService:
         comments = res.data or []
         # Attach author names
         for c in comments:
-            u = self.admin.table('users').select('first_name, last_name').eq('id', c['user_id']).single().execute()
+            # Avoid `.single()` which raises PGRST116 when 0 rows; coerce manually
+            ures = self.admin.table('users').select('first_name, last_name').eq('id', c['user_id']).execute()
+            urow = (ures.data or [{}])[0] if (ures.data or []) else {}
             c['author'] = {
-                'first_name': u.data.get('first_name', '') if u.data else '',
-                'last_name': u.data.get('last_name', '') if u.data else '',
+                'first_name': urow.get('first_name', '') or '',
+                'last_name': urow.get('last_name', '') or '',
             }
         return comments
 
@@ -420,9 +455,10 @@ class NoteService:
         self.get_note_detail(note_id, user_id)
         payload = {'note_id': note_id, 'user_id': user_id, 'content': content.strip()[:2000]}
         if parent_id:
-            # Validate parent belongs to same note
-            p = self.admin.table('note_comments').select('id, note_id').eq('id', parent_id).single().execute()
-            if not p.data or p.data['note_id'] != note_id:
+            # Validate parent belongs to same note; avoid `.single()` to prevent PGRST116
+            pres = self.admin.table('note_comments').select('id, note_id').eq('id', parent_id).execute()
+            prow = (pres.data or [])
+            if not prow or prow[0].get('note_id') != note_id:
                 raise ValidationError('Invalid parent comment')
             payload['parent_id'] = parent_id
         c = self.admin.table('note_comments').insert(payload).execute()

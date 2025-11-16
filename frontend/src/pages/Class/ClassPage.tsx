@@ -8,6 +8,7 @@ import NoteList from '../../components/notes/NoteList';
 import { useAuth } from '../../hooks/useAuth';
 import { flashcardsApi } from '../../lib/flashcardsApi';
 import { useNavigate as useNav } from 'react-router-dom';
+import { studyApi } from '../../lib/studyApi';
 
 const MountainIcon: React.FC<{ className?: string }>=({ className })=> (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -25,6 +26,7 @@ const ClassPage: React.FC = () => {
   const [classNotes, setClassNotes] = useState<Array<{ id: string; content: string; created_at: string; author?: any }>>([]);
   const [classDecks, setClassDecks] = useState<Array<any>>([]);
   const [deckVoteCounts, setDeckVoteCounts] = useState<Record<string, number>>({});
+  const [looking, setLooking] = useState<boolean>(false);
 
   useEffect(() => {
     if (classId) {
@@ -80,6 +82,17 @@ const ClassPage: React.FC = () => {
     if(classDecks.length>0) loadCounts();
     return ()=>{ cancelled = true; };
   },[classDecks]);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        if (!classId) return;
+        const res = await studyApi.getStatus(classId);
+        setLooking(!!res.looking);
+      } catch {}
+    };
+    fetchStatus();
+  }, [classId]);
 
   if (loading) {
     return (
@@ -160,6 +173,29 @@ const ClassPage: React.FC = () => {
             <div>
               <p className="text-sm text-gray-500 mb-1">Created</p>
               <p className="text-lg font-semibold text-gray-800">{formatDate(classData.created_at)}</p>
+            </div>
+            <div className="flex items-center justify-between md:justify-start md:gap-3">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Study Groups</p>
+                <p className="text-lg font-semibold text-gray-800">{looking ? 'Looking for group' : 'Not looking'}</p>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!classId) return;
+                  const next = !looking;
+                  setLooking(next);
+                  try {
+                    await studyApi.setStatus(classId, next);
+                  } catch {
+                    setLooking(!next);
+                  }
+                }}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  looking ? 'bg-primary-700 text-white' : 'bg-white border border-gray-300 text-gray-800'
+                }`}
+              >
+                {looking ? 'Turn Off' : 'I\'m Looking'}
+              </button>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import ClassPage from '../pages/Class/ClassPage';
 import SessionPage from '../pages/Session/SessionPage';
 import DeckViewPage from '../pages/Flashcards/DeckViewPage';
 import StudyModePage from '../pages/Study/StudyModePage';
+import StudyGroupsPage from '../pages/Study/StudyGroupsPage';
 import ProfilePage from '../pages/Profile/ProfilePage';
 import NotesPage from '../pages/Notes/NotesPage';
 import MyFlashcardsPage from '../pages/Flashcards/MyFlashcardsPage';
@@ -23,6 +24,14 @@ export const routes = (
         <PublicRoute>
           <LoginPage />
         </PublicRoute>
+      }
+    />
+    <Route
+      path="/study-groups"
+      element={
+        <ProtectedRoute>
+          <StudyGroupsPage />
+        </ProtectedRoute>
       }
     />
     <Route

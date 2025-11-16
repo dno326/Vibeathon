@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Class } from '../../types/classes';
 import { formatDate } from '../../utils/formatDate';
+import { studyApi } from '../../lib/studyApi';
+import { useEffect, useState } from 'react';
 
 interface ClassCardProps {
   classData: Class & { user_role?: string };
@@ -9,6 +11,22 @@ interface ClassCardProps {
 
 const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
   const navigate = useNavigate();
+  const [looking, setLooking] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const res = await studyApi.getStatus(classData.id);
+        if (mounted) setLooking(!!res.looking);
+      } catch {
+        // ignore silently
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [classData.id]);
 
   const handleClick = () => {
     navigate(`/class/${classData.id}`);
@@ -20,9 +38,39 @@ const ClassCard: React.FC<ClassCardProps> = ({ classData }) => {
       className="bg-white rounded-2xl shadow-card hover:shadow-float transition-all duration-250 ease-out-soft p-6 cursor-pointer border border-white/60 hover:border-primary-300 group"
     >
       <div className="flex items-start justify-between mb-5">
-        <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-700 transition-colors">
-          {classData.name}
-        </h3>
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-700 transition-colors">
+            {classData.name}
+          </h3>
+          {looking && (
+            <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200">
+              Looking for group
+            </span>
+          )}
+        </div>
+        <button
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+            looking ? 'bg-primary-700 text-white' : 'bg-white border border-gray-300 text-gray-800'
+          }`}
+          onClick={async (e) => {
+            e.stopPropagation();
+            const next = !looking;
+            setLoading(true);
+            try {
+              const res = await studyApi.setStatus(classData.id, next);
+              setLooking(!!res.looking);
+            } catch {
+              // keep previous state on error
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+          title={looking ? 'Turn off “looking”' : 'Set as “looking”'}
+          aria-pressed={looking}
+        >
+          {looking ? 'Turn Off' : "I'm Looking"}
+        </button>
       </div>
       
       <div className="space-y-2 text-sm text-gray-600">
