@@ -3,6 +3,14 @@ import { useParams } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import apiClient from '../../lib/apiClient';
 
+function getInitials(first?: string, last?: string) {
+  const f = (first || '').trim();
+  const l = (last || '').trim();
+  const fi = f ? f[0].toUpperCase() : '';
+  const li = l ? l[0].toUpperCase() : '';
+  return (fi + li) || 'U';
+}
+
 const ProfileViewPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<any>(null);
@@ -36,9 +44,25 @@ const ProfileViewPage: React.FC = () => {
           <div className="text-center py-12 text-gray-600">User not found</div>
         ) : (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{user.first_name} {user.last_name}</h1>
-            <p className="text-gray-600 mb-6">{user.email}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-center gap-4 mb-4">
+              {user.profile_picture_url ? (
+                <img
+                  src={user.profile_picture_url}
+                  alt="Profile"
+                  className="h-16 w-16 rounded-full object-cover border"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-600 to-violet-600 text-white flex items-center justify-center text-xl font-bold">
+                  {getInitials(user.first_name, user.last_name)}
+                </div>
+              )}
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800 leading-tight">{user.first_name} {user.last_name}</h1>
+                <p className="text-gray-600">{user.email}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               {user.grade && (
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Grade / Year</p>

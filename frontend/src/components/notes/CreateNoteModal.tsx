@@ -12,6 +12,7 @@ interface CreateNoteModalProps {
 const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [allClasses, setAllClasses] = useState<Class[]>([]);
   const [classId, setClassId] = useState('');
+  const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -40,11 +41,11 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ isOpen, onClose, onSu
     try {
       setLoading(true);
       setError(null);
-      await notesApi.uploadPdf(file, classId, isPublic);
+      await notesApi.uploadPdf(file, classId, isPublic, title.trim() || undefined);
       onSuccess();
       onClose();
     } catch (e: any) {
-      setError(e.response?.data?.error || 'Failed to create note');
+      setError(e.response?.data?.error || e.message || 'Failed to create note');
     } finally {
       setLoading(false);
     }
@@ -55,6 +56,19 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({ isOpen, onClose, onSu
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Create Note from PDF</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Title (optional)</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={loading}
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+              placeholder="e.g., Vietnam War Overview"
+              maxLength={180}
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">PDF File</label>
             <input

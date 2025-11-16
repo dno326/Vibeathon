@@ -13,6 +13,103 @@ class NoteService:
         self.admin = create_client(Config.SUPABASE_URL, Config.SUPABASE_SERVICE_KEY)
         self.files = FileService()
 
+    # ----------------------------
+    # Heuristic summarization
+    # ----------------------------
+    def _sentence_split(self, text: str):
+        return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+
+    def _tokenize(self, text: str):
+        return re.findall(r"[A-Za-z0-9']+", text.lower())
+
+    def _frequency_scores(self, text: str):
+        stop = set([
+            "the","a","an","and","or","to","of","in","on","for","with","is","are","as","that","this","it","by","be","from","at","was","were","which","has","had","have","but","not","their","his","her","its","they","them","we","you"
+        ])
+        freqs = {}
+        for t in self._tokenize(text):
+            if t in stop or len(t) <= 2:
+                continue
+            freqs[t] = freqs.get(t, 0) + 1
+        return freqs
+
+    def _is_noise_sentence(self, s: str) -> bool:
+        # Filter instructional scaffolding, URLs, and admin/meta lines
+        noise_patterns = [
+            r"http[s]?://",
+            r"www\.",
+            r"@",
+            r"optional",
+            r"teacher",
+            r"students?",
+            r"materials",
+            r"procedure",
+            r"homework",
+            r"database",
+            r"power\s*point",
+            r"attached",
+            r"note:?\s*\d+",
+        ]
+        s_low = s.lower()
+        if any(re.search(p, s_low) for p in noise_patterns):
+            return True
+        # Discard overly long list-like lines
+        if len(s) > 400:
+            return True
+        return False
+
+    def _score_sentences(self, sentences, freqs):
+        scored = []
+        for s in sentences:
+            if self._is_noise_sentence(s):
+                continue
+            score = 0
+            for t in self._tokenize(s):
+                if t in freqs:
+                    score += freqs[t]
+            if s:
+                scored.append((score, s))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [s for _, s in scored]
+
+    def _summarize_text(self, text: str) -> str:
+        # Build scores
+        sentences = self._sentence_split(text)
+        freqs = self._frequency_scores(text)
+        ranked = self._score_sentences(sentences, freqs)
+
+        # Construct concise paragraphs (no timeline, no bullets)
+        # Overview: up to 2 sentences stitched
+        overview = " ".join(ranked[:2])
+        overview = re.sub(r"\s+", " ", overview).strip()
+
+        # Additional paragraphs: groups of 2 sentences each, up to 2 paragraphs
+        rest = ranked[2:8]  # up to 6 more
+        paras = []
+        for i in range(0, len(rest), 2):
+            chunk = " ".join(rest[i:i+2]).strip()
+            if chunk:
+                paras.append(re.sub(r"\s+", " ", chunk))
+            if len(paras) >= 2:
+                break
+
+        md = []
+        if overview:
+            md.append("### Overview")
+            md.append(overview)
+            # Add two blank lines for visual separation
+            md.append("")
+            md.append("")
+        if paras:
+            md.append("### Summary")
+            for p in paras:
+                md.append(p)
+                md.append("")
+        return "\n".join(md).strip()
+
+    # ----------------------------
+    # Existing methods below (unchanged except where we call _summarize_text)
+    # ----------------------------
     def _split_into_sections(self, text: str):
         sections = []
         current_title = "Document"
@@ -62,24 +159,6 @@ class NoteService:
         scored.sort(key=lambda x: x[0], reverse=True)
         return [s for _, s in scored[:k]]
 
-    def _summarize_text(self, text: str) -> str:
-        sections = self._split_into_sections(text)
-        bullets = []
-        for title, body in sections:
-            if not body:
-                continue
-            top = self._top_sentences(body, k=4)
-            if not top:
-                continue
-            bullets.append(f"## {title}")
-            for s in top:
-                bullets.append(f"- {s}")
-            bullets.append("")
-        if not bullets:
-            top = self._top_sentences(text, k=8)
-            bullets = ["## Summary", *[f"- {s}" for s in top]]
-        return "\n".join(bullets).strip()
-
     def _ensure_notes_bucket(self):
         try:
             buckets = self.admin.storage.list_buckets()
@@ -103,7 +182,7 @@ class NoteService:
         public_url = f"{Config.SUPABASE_URL}/storage/v1/object/public/notes-pdfs/{key}"
         return public_url
 
-    def create_note_from_pdf(self, file, class_id: str, user_id: str, public: bool):
+    def create_note_from_pdf(self, file, class_id: str, user_id: str, public: bool, title: str | None = None):
         if not class_id:
             raise ValidationError("class_id is required")
         if not user_id:
@@ -124,10 +203,10 @@ class NoteService:
         content = self._summarize_text(text)
 
         filename = getattr(file, 'filename', None) or 'PDF Upload'
-        title = os.path.splitext(os.path.basename(filename))[0][:120] or 'PDF Upload'
+        session_title = os.path.splitext(os.path.basename(filename))[0][:120] or 'PDF Upload'
         session_res = self.admin.table('sessions').insert({
             'class_id': class_id,
-            'title': title,
+            'title': session_title,
             'created_by': user_id
         }).execute()
         if not session_res.data:
@@ -136,14 +215,18 @@ class NoteService:
 
         pdf_url = self._upload_pdf(file, user_id)
 
-        note_res = self.admin.table('notes').insert({
+        note_payload = {
             'session_id': session_id,
             'type': 'slides',
             'content': content,
             'created_by': user_id,
             'public': public,
             'pdf_url': pdf_url
-        }).execute()
+        }
+        if title:
+            note_payload['title'] = title[:180]
+
+        note_res = self.admin.table('notes').insert(note_payload).execute()
         if not note_res.data:
             raise ValidationError("Failed to create note")
         return note_res.data[0]
@@ -164,11 +247,10 @@ class NoteService:
         pass
 
     def get_note_detail(self, note_id: str, user_id: str):
-        res = self.admin.table('notes').select('id, session_id, type, content, public, created_at, created_by, pdf_url').eq('id', note_id).single().execute()
+        res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').eq('id', note_id).single().execute()
         if not res.data:
             raise NotFoundError("Note not found")
         note = res.data
-        # Author info
         author_res = self.admin.table('users').select('id, first_name, last_name').eq('id', note['created_by']).single().execute()
         note['author'] = None
         if author_res.data:
@@ -177,7 +259,6 @@ class NoteService:
                 'first_name': author_res.data.get('first_name', ''),
                 'last_name': author_res.data.get('last_name', ''),
             }
-        # Class info via session
         sess_res = self.admin.table('sessions').select('class_id').eq('id', note['session_id']).single().execute()
         note['cls'] = None
         if sess_res.data and sess_res.data.get('class_id'):
@@ -241,7 +322,7 @@ class NoteService:
 
     def list_notes_for_user(self, user_id: str):
         try:
-            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at, created_by, pdf_url').eq('created_by', user_id).order('created_at', desc=True).execute()
+            res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').eq('created_by', user_id).order('created_at', desc=True).execute()
             notes = res.data or []
             notes = self._attach_authors(notes)
             notes = self._attach_classes_via_sessions(notes)
@@ -258,7 +339,7 @@ class NoteService:
             session_ids = [s['id'] for s in (sess.data or [])]
             if not session_ids:
                 return []
-            res = self.admin.table('notes').select('id, session_id, type, content, public, created_at, created_by, pdf_url').in_('session_id', session_ids).eq('public', True).order('created_at', desc=True).execute()
+            res = self.admin.table('notes').select('id, session_id, type, title, content, public, created_at, created_by, pdf_url').in_('session_id', session_ids).eq('public', True).order('created_at', desc=True).execute()
             notes = res.data or []
             notes = self._attach_authors(notes)
             cls_res = self.admin.table('classes').select('id, name').eq('id', class_id).single().execute()

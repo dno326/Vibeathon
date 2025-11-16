@@ -1,86 +1,74 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-interface Author {
-  id: string;
-  first_name?: string;
-  last_name?: string;
-}
-
-interface Cls {
-  id: string;
-  name: string;
-}
-
-interface NoteItem {
-  id: string;
-  content: string;
-  created_at: string;
-  public?: boolean;
-  author?: Author | null;
-  cls?: Cls | null;
-}
+import { formatDate } from '../../utils/formatDate';
+import { Note } from '../../types/sessions';
 
 interface NoteListProps {
-  notes: NoteItem[];
-  emptyText?: string;
+  notes: Note[];
   currentUserId?: string;
-  onDelete?: (noteId: string) => void;
+  onDelete?: (id: string) => void;
+  emptyText?: string;
 }
 
-const NoteList: React.FC<NoteListProps> = ({ notes, emptyText, currentUserId, onDelete }) => {
+const NoteList: React.FC<NoteListProps> = ({ notes, currentUserId, onDelete, emptyText }) => {
   const navigate = useNavigate();
+
   if (!notes || notes.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-500">
-        {emptyText || 'No notes to display'}
-      </div>
-    );
+    return <div className="text-gray-500">{emptyText || 'No notes yet.'}</div>;
   }
 
   return (
     <div className="space-y-4">
-      {notes.map((n) => {
-        const isMine = currentUserId && n.author?.id === currentUserId;
-        const displayName = n.author ? `${n.author.first_name || ''} ${n.author.last_name || ''}`.trim() : 'Unknown';
-        const linkTo = isMine ? '/profile' : (n.author ? `/user/${n.author.id}` : '#');
-        const className = n.cls?.name || 'Class';
-        const classLink = n.cls ? `/class/${n.cls.id}` : '#';
-        const preview = n.content.length > 240 ? n.content.slice(0, 240) + '…' : n.content;
-        return (
-          <div key={n.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <div className="text-sm text-gray-500 mb-2 flex items-center gap-2 flex-wrap">
-              {n.cls ? (
-                <Link to={classLink} className="text-gray-700 hover:text-purple-700 font-medium">{className}</Link>
-              ) : (
-                <span className="text-gray-700">Class</span>
-              )}
-              <span>·</span>
-              {n.author ? (
-                <Link to={linkTo} className="text-purple-600 hover:text-purple-700 font-medium">
-                  {displayName || 'User'}
-                </Link>
-              ) : (
-                <span>User</span>
-              )}
-              <span>·</span>
-              <span>{new Date(n.created_at).toLocaleString()}</span>
-              {n.public === false ? <span className="ml-2 text-xs text-gray-400">(Private)</span> : null}
-            </div>
-            <div className="text-gray-800 text-sm whitespace-pre-wrap">
-              <Link to={`/note/${n.id}`} className="hover:underline">
-                {preview}
+      {notes.map((note) => (
+        <div
+          key={note.id}
+          className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-md transition-shadow"
+          role="button"
+          onClick={() => navigate(`/note/${note.id}`)}
+        >
+          <div className="flex justify-between items-start gap-4">
+            <div className="min-w-0">
+              <Link
+                to={`/class/${note.cls?.id || ''}`}
+                className="text-lg font-semibold text-gray-900 hover:underline break-words"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {note.cls?.name || 'Class'}
               </Link>
-            </div>
-            <div className="mt-3 flex justify-end gap-2">
-              <Link to={`/note/${n.id}`} className="px-3 py-1 text-purple-600 hover:text-purple-700 text-sm font-medium">View</Link>
-              {isMine && onDelete && (
-                <button onClick={() => onDelete(n.id)} className="px-3 py-1 text-red-600 hover:text-red-700 text-sm font-medium">Delete</button>
+              <div className="text-sm text-gray-500">
+                {note.author ? (
+                  <>
+                    <Link
+                      to={`/user/${note.author.id}`}
+                      className="hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {note.author.first_name} {note.author.last_name}
+                    </Link>
+                    {' · '} {formatDate(note.created_at)}
+                  </>
+                ) : (
+                  formatDate(note.created_at)
+                )}
+                {note.public === false && (
+                  <span className="ml-2 inline-block text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 align-middle">Private</span>
+                )}
+              </div>
+              {note.title && (
+                <div className="mt-1 text-base text-gray-800 font-medium break-words">{note.title}</div>
               )}
             </div>
+            {currentUserId && note.created_by === currentUserId && onDelete && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
+                className="text-red-600 hover:text-red-700 text-sm font-semibold"
+              >
+                Delete
+              </button>
+            )}
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 };

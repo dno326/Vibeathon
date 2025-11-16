@@ -8,13 +8,28 @@ export interface Session {
   created_at: string;
 }
 
+export interface NoteAuthor {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface NoteClassRef {
+  id: string;
+  name: string;
+}
+
 export interface Note {
   id: string;
   session_id: string;
-  type: NoteType;
+  type: string;
+  title?: string;
   content: string;
-  created_by: string;
+  public: boolean;
   created_at: string;
-  updated_at: string;
+  created_by: string;
+  pdf_url?: string;
+  author?: NoteAuthor;
+  cls?: NoteClassRef;
 }
 

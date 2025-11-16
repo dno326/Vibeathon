@@ -45,7 +45,6 @@ def create_note_from_pdf():
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
         
-        # Relaxed content-type/extension check
         content_type = (file.content_type or '').lower()
         _, ext = os.path.splitext(file.filename.lower())
         if not (content_type in ['application/pdf', 'application/octet-stream'] or ext == '.pdf'):
@@ -55,16 +54,16 @@ def create_note_from_pdf():
         if not class_id:
             return jsonify({'error': 'class_id is required'}), 400
         public_flag = request.form.get('public', 'true').lower() in ['true', '1', 'yes']
+        title = request.form.get('title', '').strip()
         
         user_id = request.current_user.id
-        note = note_service.create_note_from_pdf(file, class_id, user_id, public_flag)
+        note = note_service.create_note_from_pdf(file, class_id, user_id, public_flag, title=title or None)
         return jsonify(note), 201
     except ValidationError as e:
         return jsonify({'error': e.message}), e.status_code
     except NotFoundError as e:
         return jsonify({'error': e.message}), e.status_code
     except Exception as e:
-        # Surface backend error for debugging in dev
         return jsonify({'error': f'Failed to process PDF: {str(e)}'}), 500
 
 @note_bp.route('', methods=['GET'])

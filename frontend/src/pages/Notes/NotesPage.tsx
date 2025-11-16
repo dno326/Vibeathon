@@ -15,7 +15,7 @@ const NotesPage: React.FC = () => {
   const loadNotes = async () => {
     try {
       setLoading(true);
-      const mine = await notesApi.getMyNotes();
+      const mine = await notesApi.getNotes();
       setNotes(mine);
     } catch (e) {
       // noop
